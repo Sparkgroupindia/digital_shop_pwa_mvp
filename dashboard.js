@@ -17,6 +17,7 @@ let editingProductId = "";
 // ==========================================
 
 function esc(x = "") {
+
   return String(x).replace(/[&<>"']/g, m => ({
     "&": "&amp;",
     "<": "&lt;",
@@ -24,6 +25,7 @@ function esc(x = "") {
     '"': "&quot;",
     "'": "&#039;"
   }[m]));
+
 }
 
 
@@ -32,10 +34,14 @@ function esc(x = "") {
 // ==========================================
 
 function getUrlUserId() {
+
   const params =
-    new URLSearchParams(window.location.search);
+    new URLSearchParams(
+      window.location.search
+    );
 
   return params.get("userId") || "";
+
 }
 
 
@@ -44,32 +50,46 @@ function getUrlUserId() {
 // ==========================================
 
 function getSession() {
+
   try {
+
     const saved =
-      localStorage.getItem(SESSION_KEY);
+      localStorage.getItem(
+        SESSION_KEY
+      );
 
     if (!saved) return null;
 
     return JSON.parse(saved);
 
   } catch (error) {
+
+    console.error(error);
+
     return null;
   }
+
 }
 
 
 function saveSession(user) {
+
   localStorage.setItem(
     SESSION_KEY,
     JSON.stringify({
       User_ID: user.User_ID
     })
   );
+
 }
 
 
 function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
+
+  localStorage.removeItem(
+    SESSION_KEY
+  );
+
 }
 
 
@@ -84,6 +104,7 @@ function goToLogin() {
   window.location.replace(
     "./dashboard.html"
   );
+
 }
 
 
@@ -123,7 +144,9 @@ function renderLogin() {
           margin-bottom:25px;
         ">
 
-          <h1 style="margin:0 0 8px;">
+          <h1 style="
+            margin:0 0 8px;
+          ">
             Digital Shop
           </h1>
 
@@ -136,9 +159,15 @@ function renderLogin() {
 
         </div>
 
+
         <form id="loginForm">
 
-          <label>User ID</label>
+          <label style="
+            display:block;
+            font-weight:600;
+          ">
+            User ID
+          </label>
 
           <input
             id="loginUserId"
@@ -157,7 +186,13 @@ function renderLogin() {
             "
           >
 
-          <label>Password</label>
+
+          <label style="
+            display:block;
+            font-weight:600;
+          ">
+            Password
+          </label>
 
           <input
             id="loginPassword"
@@ -176,6 +211,7 @@ function renderLogin() {
             "
           >
 
+
           <button
             id="loginButton"
             type="submit"
@@ -193,6 +229,7 @@ function renderLogin() {
             LOGIN
           </button>
 
+
           <div
             id="loginMessage"
             style="
@@ -209,12 +246,14 @@ function renderLogin() {
     </div>
   `;
 
+
   document
     .getElementById("loginForm")
     .addEventListener(
       "submit",
       handleLogin
     );
+
 }
 
 
@@ -227,14 +266,15 @@ async function handleLogin(event) {
   event.preventDefault();
 
   const userId =
-    document.getElementById(
-      "loginUserId"
-    ).value.trim();
+    document
+      .getElementById("loginUserId")
+      .value
+      .trim();
 
   const password =
-    document.getElementById(
-      "loginPassword"
-    ).value;
+    document
+      .getElementById("loginPassword")
+      .value;
 
   const button =
     document.getElementById(
@@ -246,9 +286,14 @@ async function handleLogin(event) {
       "loginMessage"
     );
 
+
   button.disabled = true;
-  button.textContent = "LOGINNING...";
+
+  button.textContent =
+    "LOGGING IN...";
+
   message.textContent = "";
+
 
   try {
 
@@ -260,11 +305,14 @@ async function handleLogin(event) {
       "&password=" +
       encodeURIComponent(password);
 
+
     const response =
       await fetch(url);
 
+
     const result =
       await response.json();
+
 
     if (!result.ok) {
 
@@ -273,12 +321,18 @@ async function handleLogin(event) {
         "Invalid User ID or password";
 
       button.disabled = false;
-      button.textContent = "LOGIN";
+
+      button.textContent =
+        "LOGIN";
 
       return;
     }
 
-    saveSession(result.user);
+
+    saveSession(
+      result.user
+    );
+
 
     window.location.replace(
       "./dashboard.html?userId=" +
@@ -286,6 +340,7 @@ async function handleLogin(event) {
         result.user.User_ID
       )
     );
+
 
   } catch (error) {
 
@@ -295,8 +350,12 @@ async function handleLogin(event) {
       "Unable to connect with server";
 
     button.disabled = false;
-    button.textContent = "LOGIN";
+
+    button.textContent =
+      "LOGIN";
+
   }
+
 }
 
 
@@ -309,6 +368,7 @@ async function loadDashboard(userId) {
   document.getElementById(
     "dashboardApp"
   ).innerHTML = `
+
     <div style="
       min-height:100vh;
       display:flex;
@@ -318,7 +378,9 @@ async function loadDashboard(userId) {
     ">
       Loading dashboard...
     </div>
+
   `;
+
 
   try {
 
@@ -328,20 +390,28 @@ async function loadDashboard(userId) {
       "&userId=" +
       encodeURIComponent(userId);
 
+
     const response =
       await fetch(url);
+
 
     const result =
       await response.json();
 
+
     if (!result.ok) {
+
       goToLogin();
+
       return;
     }
 
+
     dashboardData = result;
 
+
     renderDashboard();
+
 
   } catch (error) {
 
@@ -350,6 +420,7 @@ async function loadDashboard(userId) {
     document.getElementById(
       "dashboardApp"
     ).innerHTML = `
+
       <div style="
         min-height:100vh;
         display:flex;
@@ -359,9 +430,16 @@ async function loadDashboard(userId) {
         text-align:center;
         font-family:system-ui;
       ">
+
         <div>
-          <h2>Connection Error</h2>
-          <p>Please check your internet connection.</p>
+
+          <h2>
+            Connection Error
+          </h2>
+
+          <p>
+            Please check your internet connection.
+          </p>
 
           <button
             onclick="location.reload()"
@@ -375,10 +453,480 @@ async function loadDashboard(userId) {
           >
             Retry
           </button>
+
         </div>
+
       </div>
+
     `;
+
   }
+
+}
+
+
+// ==========================================
+// SHOP URL
+// ==========================================
+
+function getShopUrl() {
+
+  const user =
+    dashboardData.user || {};
+
+  /*
+    IMPORTANT:
+
+    Agar API mein Slug available hai
+    to wahi use hoga.
+
+    Example:
+    abc-jewellers
+  */
+
+  const slug =
+    user.Slug ||
+    user.slug ||
+    user.User_Slug ||
+    user.Shop_Slug ||
+    "";
+
+
+  if (!slug) {
+
+    return (
+      window.location.origin +
+      window.location.pathname
+        .replace(
+          "dashboard.html",
+          "index.html"
+        ) +
+      "?userId=" +
+      encodeURIComponent(
+        user.User_ID || ""
+      )
+    );
+
+  }
+
+
+  return (
+    window.location.origin +
+    window.location.pathname
+      .replace(
+        "dashboard.html",
+        "index.html"
+      ) +
+    "?slug=" +
+    encodeURIComponent(slug)
+  );
+
+}
+
+
+// ==========================================
+// OPEN SHOP
+// ==========================================
+
+function openShop() {
+
+  const url =
+    getShopUrl();
+
+  window.open(
+    url,
+    "_blank"
+  );
+
+}
+
+
+// ==========================================
+// COPY SHOP LINK
+// ==========================================
+
+async function copyShopLink() {
+
+  const url =
+    getShopUrl();
+
+  try {
+
+    await navigator.clipboard.writeText(
+      url
+    );
+
+    showToast(
+      "Shop link copied!"
+    );
+
+  } catch (error) {
+
+    const temp =
+      document.createElement("input");
+
+    temp.value = url;
+
+    document.body.appendChild(temp);
+
+    temp.select();
+
+    document.execCommand("copy");
+
+    temp.remove();
+
+    showToast(
+      "Shop link copied!"
+    );
+
+  }
+
+}
+
+
+// ==========================================
+// QR MODAL
+// ==========================================
+
+function openQR() {
+
+  const url =
+    getShopUrl();
+
+  const overlay =
+    document.createElement("div");
+
+  overlay.id =
+    "qrOverlay";
+
+  overlay.style.cssText = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.65);
+    z-index:99999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    font-family:system-ui;
+  `;
+
+
+  overlay.innerHTML = `
+
+    <div style="
+      width:100%;
+      max-width:380px;
+      background:#fff;
+      border-radius:22px;
+      padding:25px;
+      text-align:center;
+      box-sizing:border-box;
+    ">
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+      ">
+
+        <h2 style="
+          margin:0;
+        ">
+          Shop QR Code
+        </h2>
+
+        <button
+          onclick="closeQR()"
+          style="
+            border:0;
+            background:#eee;
+            width:38px;
+            height:38px;
+            border-radius:50%;
+            font-size:20px;
+          "
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <p style="
+        color:#777;
+        font-size:14px;
+        margin:15px 0;
+      ">
+        Scan this QR to open your digital shop
+      </p>
+
+
+      <div
+        id="qrCode"
+        style="
+          display:flex;
+          justify-content:center;
+          padding:15px;
+        "
+      ></div>
+
+
+      <div style="
+        font-size:12px;
+        color:#777;
+        word-break:break-all;
+        margin:10px 0 18px;
+      ">
+        ${esc(url)}
+      </div>
+
+
+      <div style="
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+      ">
+
+        <button
+          onclick="downloadQR()"
+          style="
+            padding:13px;
+            border:0;
+            border-radius:11px;
+            background:#111;
+            color:#fff;
+            font-weight:700;
+          "
+        >
+          Download QR
+        </button>
+
+
+        <button
+          onclick="shareShop()"
+          style="
+            padding:13px;
+            border:0;
+            border-radius:11px;
+            background:#eee;
+            color:#111;
+            font-weight:700;
+          "
+        >
+          Share
+        </button>
+
+      </div>
+
+
+      <button
+        onclick="copyShopLink()"
+        style="
+          width:100%;
+          margin-top:10px;
+          padding:13px;
+          border:1px solid #ddd;
+          border-radius:11px;
+          background:#fff;
+          font-weight:700;
+        "
+      >
+        Copy Shop Link
+      </button>
+
+    </div>
+
+  `;
+
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  new QRCode(
+    document.getElementById(
+      "qrCode"
+    ),
+    {
+      text: url,
+      width: 220,
+      height: 220,
+      correctLevel:
+        QRCode.CorrectLevel.H
+    }
+  );
+
+}
+
+
+function closeQR() {
+
+  const overlay =
+    document.getElementById(
+      "qrOverlay"
+    );
+
+  if (overlay) {
+
+    overlay.remove();
+
+  }
+
+}
+
+
+// ==========================================
+// DOWNLOAD QR
+// ==========================================
+
+function downloadQR() {
+
+  const qr =
+    document.querySelector(
+      "#qrCode img"
+    );
+
+  if (!qr) {
+
+    showToast(
+      "QR not ready"
+    );
+
+    return;
+  }
+
+
+  const link =
+    document.createElement("a");
+
+  link.href =
+    qr.src;
+
+  link.download =
+    (
+      dashboardData.user.Business_Name ||
+      "Digital-Shop"
+    )
+      .replace(
+        /[^a-z0-9]/gi,
+        "-"
+      ) +
+    "-QR.png";
+
+
+  document.body.appendChild(
+    link
+  );
+
+  link.click();
+
+  link.remove();
+
+}
+
+
+// ==========================================
+// SHARE SHOP
+// ==========================================
+
+async function shareShop() {
+
+  const user =
+    dashboardData.user;
+
+  const url =
+    getShopUrl();
+
+  const text =
+    `Visit ${user.Business_Name || "our shop"} digital shop`;
+
+  if (
+    navigator.share
+  ) {
+
+    try {
+
+      await navigator.share({
+        title:
+          user.Business_Name ||
+          "Digital Shop",
+
+        text:
+          text,
+
+        url:
+          url
+      });
+
+    } catch (error) {
+
+      console.log(
+        "Share cancelled"
+      );
+
+    }
+
+    return;
+  }
+
+
+  await copyShopLink();
+
+}
+
+
+// ==========================================
+// TOAST
+// ==========================================
+
+function showToast(message) {
+
+  const old =
+    document.getElementById(
+      "dashboardToast"
+    );
+
+  if (old) {
+    old.remove();
+  }
+
+
+  const toast =
+    document.createElement("div");
+
+  toast.id =
+    "dashboardToast";
+
+  toast.textContent =
+    message;
+
+  toast.style.cssText = `
+    position:fixed;
+    left:50%;
+    bottom:25px;
+    transform:translateX(-50%);
+    background:#111;
+    color:#fff;
+    padding:12px 18px;
+    border-radius:30px;
+    z-index:100000;
+    font-family:system-ui;
+    font-size:14px;
+    box-shadow:0 5px 20px rgba(0,0,0,.25);
+  `;
+
+  document.body.appendChild(
+    toast
+  );
+
+
+  setTimeout(
+    () => toast.remove(),
+    2200
+  );
+
 }
 
 
@@ -386,26 +934,10 @@ async function loadDashboard(userId) {
 // DASHBOARD
 // ==========================================
 
-// ==========================================
-// RENDER DASHBOARD
-// ==========================================
-
 function renderDashboard() {
 
   const user =
     dashboardData.user;
-
-  const shopSlug =
-    String(user.Slug || "").trim();
-
-  const shopUrl =
-    window.location.origin +
-    window.location.pathname.replace(
-      "dashboard.html",
-      ""
-    ) +
-    "?slug=" +
-    encodeURIComponent(shopSlug);
 
 
   document.getElementById(
@@ -424,11 +956,14 @@ function renderDashboard() {
       <header style="
         background:#111;
         color:#fff;
-        padding:16px 20px;
+        padding:15px 20px;
         display:flex;
         align-items:center;
         justify-content:space-between;
         gap:15px;
+        position:sticky;
+        top:0;
+        z-index:100;
       ">
 
         <div>
@@ -444,7 +979,10 @@ function renderDashboard() {
             font-size:13px;
             opacity:.75;
           ">
-            ${esc(user.Business_Name || "")}
+            ${esc(
+              user.Business_Name ||
+              ""
+            )}
           </div>
 
         </div>
@@ -458,7 +996,6 @@ function renderDashboard() {
             color:#fff;
             padding:9px 14px;
             border-radius:10px;
-            cursor:pointer;
           "
         >
           Logout
@@ -467,17 +1004,16 @@ function renderDashboard() {
       </header>
 
 
-
       <main style="
-        max-width:1000px;
+        max-width:1100px;
         margin:auto;
         padding:20px;
       ">
 
 
-        <!-- BUSINESS CARD -->
+        <!-- SHOP ACTIONS -->
 
-        <div style="
+        <section style="
           background:#fff;
           padding:20px;
           border-radius:18px;
@@ -485,168 +1021,216 @@ function renderDashboard() {
           box-shadow:0 5px 20px rgba(0,0,0,.06);
         ">
 
+          <h2 style="
+            margin:0 0 15px;
+          ">
+            Your Digital Shop
+          </h2>
+
+
+          <div style="
+            display:grid;
+            grid-template-columns:
+              repeat(auto-fit,minmax(150px,1fr));
+            gap:10px;
+          ">
+
+
+            <button
+              onclick="openShop()"
+              style="
+                padding:13px;
+                border:0;
+                border-radius:11px;
+                background:#111;
+                color:#fff;
+                font-weight:700;
+              "
+            >
+              🌐 Open Shop
+            </button>
+
+
+            <button
+              onclick="copyShopLink()"
+              style="
+                padding:13px;
+                border:1px solid #ddd;
+                border-radius:11px;
+                background:#fff;
+                font-weight:700;
+              "
+            >
+              🔗 Copy Link
+            </button>
+
+
+            <button
+              onclick="openQR()"
+              style="
+                padding:13px;
+                border:1px solid #ddd;
+                border-radius:11px;
+                background:#fff;
+                font-weight:700;
+              "
+            >
+              ▣ Show QR
+            </button>
+
+
+            <button
+              onclick="shareShop()"
+              style="
+                padding:13px;
+                border:0;
+                border-radius:11px;
+                background:#25D366;
+                color:#fff;
+                font-weight:700;
+              "
+            >
+              📤 Share Shop
+            </button>
+
+          </div>
+
+
+          <div style="
+            margin-top:15px;
+            padding:12px;
+            background:#f7f7f7;
+            border-radius:10px;
+            font-size:12px;
+            color:#666;
+            word-break:break-all;
+          ">
+            ${esc(
+              getShopUrl()
+            )}
+          </div>
+
+        </section>
+
+
+        <!-- PROFILE -->
+
+        <section style="
+          background:#fff;
+          padding:20px;
+          border-radius:18px;
+          margin-bottom:20px;
+          box-shadow:0 5px 20px rgba(0,0,0,.06);
+        ">
 
           <div style="
             display:flex;
+            justify-content:space-between;
             align-items:center;
             gap:15px;
             flex-wrap:wrap;
           ">
 
 
-            ${
-              user.Logo
-                ? `
-                  <img
-                    src="${esc(user.Logo)}"
-                    style="
-                      width:70px;
-                      height:70px;
-                      object-fit:contain;
-                      border-radius:12px;
-                      border:1px solid #eee;
-                    "
-                  >
-                `
-                : `
-                  <div style="
-                    width:70px;
-                    height:70px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:center;
-                    background:#eee;
-                    border-radius:12px;
-                    font-size:28px;
-                  ">
-                    🏪
-                  </div>
-                `
-            }
-
-
-            <div style="flex:1;">
-
-              <h2 style="
-                margin:0 0 5px;
-              ">
-                ${esc(user.Business_Name || "Business")}
-              </h2>
-
-              <div style="
-                color:#777;
-              ">
-                User ID:
-                <b>${esc(user.User_ID)}</b>
-              </div>
+            <div style="
+              display:flex;
+              align-items:center;
+              gap:15px;
+            ">
 
               ${
-                shopSlug
+                user.Logo
+
                   ? `
-                    <div style="
-                      color:#777;
-                      font-size:13px;
-                      margin-top:4px;
-                    ">
-                      Shop:
-                      <b>${esc(shopSlug)}</b>
-                    </div>
+
+                    <img
+                      src="${esc(user.Logo)}"
+                      style="
+                        width:75px;
+                        height:75px;
+                        object-fit:contain;
+                        border-radius:14px;
+                        border:1px solid #eee;
+                      "
+                    >
+
                   `
-                  : ""
+
+                  :
+
+                  `
+
+                    <div style="
+                      width:75px;
+                      height:75px;
+                      display:flex;
+                      align-items:center;
+                      justify-content:center;
+                      background:#eee;
+                      border-radius:14px;
+                      font-size:28px;
+                    ">
+                      🏪
+                    </div>
+
+                  `
               }
+
+
+              <div>
+
+                <h2 style="
+                  margin:0 0 5px;
+                ">
+                  ${esc(
+                    user.Business_Name ||
+                    "Business"
+                  )}
+                </h2>
+
+                <div style="
+                  color:#777;
+                ">
+                  User ID:
+                  <b>
+                    ${esc(
+                      user.User_ID
+                    )}
+                  </b>
+                </div>
+
+              </div>
 
             </div>
 
+
+            <button
+              onclick="openProfileEditor()"
+              style="
+                border:0;
+                background:#111;
+                color:#fff;
+                padding:12px 18px;
+                border-radius:10px;
+                font-weight:700;
+              "
+            >
+              ✏️ Edit Profile
+            </button>
+
           </div>
 
+        </section>
 
 
-          <!-- SHOP BUTTONS -->
-
-          ${
-            shopSlug
-              ? `
-                <div style="
-                  display:grid;
-                  grid-template-columns:
-                    repeat(auto-fit,minmax(180px,1fr));
-                  gap:10px;
-                  margin-top:20px;
-                ">
-
-
-                  <button
-                    onclick="openMyShop()"
-                    style="
-                      border:0;
-                      padding:14px;
-                      border-radius:12px;
-                      background:#111;
-                      color:#fff;
-                      font-size:15px;
-                      font-weight:700;
-                      cursor:pointer;
-                    "
-                  >
-                    🛍️ Open Shop
-                  </button>
-
-
-                  <button
-                    onclick="copyShopLink()"
-                    style="
-                      border:1px solid #ddd;
-                      padding:14px;
-                      border-radius:12px;
-                      background:#fff;
-                      color:#111;
-                      font-size:15px;
-                      font-weight:700;
-                      cursor:pointer;
-                    "
-                  >
-                    🔗 Copy Shop Link
-                  </button>
-
-                </div>
-
-
-                <div
-                  id="shopLinkMessage"
-                  style="
-                    text-align:center;
-                    color:#16803c;
-                    font-size:13px;
-                    margin-top:10px;
-                    min-height:18px;
-                  "
-                ></div>
-              `
-              : `
-                <div style="
-                  margin-top:15px;
-                  padding:12px;
-                  background:#fff3cd;
-                  border-radius:10px;
-                  color:#856404;
-                  font-size:14px;
-                ">
-                  Shop link is not available because Slug is missing.
-                </div>
-              `
-          }
-
-        </div>
-
-
-
-        <!-- STAT CARDS -->
+        <!-- STATS -->
 
         <div style="
           display:grid;
           grid-template-columns:
             repeat(auto-fit,minmax(180px,1fr));
           gap:15px;
+          margin-bottom:20px;
         ">
 
 
@@ -658,7 +1242,6 @@ function renderDashboard() {
 
             <div style="
               color:#777;
-              font-size:14px;
             ">
               Products
             </div>
@@ -667,11 +1250,12 @@ function renderDashboard() {
               font-size:30px;
               font-weight:800;
             ">
-              ${dashboardData.products.length}
+              ${
+                dashboardData.products.length
+              }
             </div>
 
           </div>
-
 
 
           <div style="
@@ -682,7 +1266,6 @@ function renderDashboard() {
 
             <div style="
               color:#777;
-              font-size:14px;
             ">
               Categories
             </div>
@@ -691,7 +1274,9 @@ function renderDashboard() {
               font-size:30px;
               font-weight:800;
             ">
-              ${dashboardData.categories.length}
+              ${
+                dashboardData.categories.length
+              }
             </div>
 
           </div>
@@ -700,191 +1285,249 @@ function renderDashboard() {
         </div>
 
 
+        <!-- PRODUCTS -->
+
+        <section style="
+          background:#fff;
+          padding:20px;
+          border-radius:18px;
+          margin-bottom:20px;
+        ">
+
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            flex-wrap:wrap;
+          ">
+
+            <h2 style="
+              margin:0;
+            ">
+              Products
+            </h2>
+
+
+            <button
+              onclick="openProductEditor()"
+              style="
+                border:0;
+                background:#111;
+                color:#fff;
+                padding:11px 16px;
+                border-radius:10px;
+                font-weight:700;
+              "
+            >
+              + Add Product
+            </button>
+
+          </div>
+
+
+          <div style="
+            display:grid;
+            grid-template-columns:
+              repeat(auto-fit,minmax(180px,1fr));
+            gap:15px;
+            margin-top:20px;
+          ">
+
+            ${
+              dashboardData.products.length
+
+                ?
+
+                dashboardData.products
+                  .map(
+                    productDashboardCard
+                  )
+                  .join("")
+
+                :
+
+                `
+                  <div style="
+                    color:#777;
+                    padding:20px 0;
+                  ">
+                    No products yet.
+                  </div>
+                `
+            }
+
+          </div>
+
+        </section>
+
+
+        <!-- CATEGORIES -->
+
+        <section style="
+          background:#fff;
+          padding:20px;
+          border-radius:18px;
+          margin-bottom:20px;
+        ">
+
+
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+          ">
+
+            <h2 style="
+              margin:0;
+            ">
+              Categories
+            </h2>
+
+
+            <button
+              onclick="openCategoryEditor()"
+              style="
+                border:0;
+                background:#111;
+                color:#fff;
+                padding:10px 15px;
+                border-radius:10px;
+                font-weight:700;
+              "
+            >
+              + Add Category
+            </button>
+
+          </div>
+
+
+          <div style="
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:18px;
+          ">
+
+            ${
+              dashboardData.categories.length
+
+                ?
+
+                dashboardData.categories
+                  .map(
+                    c => `
+                      <div style="
+                        padding:10px 14px;
+                        background:#f1f1f1;
+                        border-radius:20px;
+                      ">
+                        ${esc(c.Name)}
+                      </div>
+                    `
+                  )
+                  .join("")
+
+                :
+
+                `
+                  <span style="
+                    color:#777;
+                  ">
+                    No categories yet.
+                  </span>
+                `
+            }
+
+          </div>
+
+        </section>
+
 
         <!-- ACCOUNT -->
 
-        <div style="
-          margin-top:20px;
+        <section style="
           background:#fff;
           padding:20px;
           border-radius:18px;
         ">
 
-          <h3>
-            Account
-          </h3>
+          <h2>
+            Account Details
+          </h2>
+
 
           <p>
             <b>Business:</b>
-            ${esc(user.Business_Name || "")}
+            ${esc(
+              user.Business_Name ||
+              ""
+            )}
           </p>
+
 
           <p>
             <b>Owner:</b>
-            ${esc(user.Owner_Name || "")}
+            ${esc(
+              user.Owner_Name ||
+              ""
+            )}
           </p>
+
 
           <p>
             <b>Mobile:</b>
-            ${esc(user.Mobile || "")}
+            ${esc(
+              user.Mobile ||
+              ""
+            )}
           </p>
+
+
+          <p>
+            <b>WhatsApp:</b>
+            ${esc(
+              user.WhatsApp ||
+              ""
+            )}
+          </p>
+
 
           <p>
             <b>Email:</b>
-            ${esc(user.Email || "")}
+            ${esc(
+              user.Email ||
+              ""
+            )}
           </p>
+
+
+          <p>
+            <b>Address:</b>
+            ${esc(
+              user.Address ||
+              ""
+            )}
+          </p>
+
 
           <p>
             <b>Status:</b>
-            ${esc(user.Status || "")}
+            ${esc(
+              user.Status ||
+              ""
+            )}
           </p>
 
-        </div>
+        </section>
 
 
       </main>
 
     </div>
+
   `;
-
-}
-
-
-// ==========================================
-// OPEN MY SHOP
-// ==========================================
-
-function openMyShop() {
-
-  const user =
-    dashboardData.user;
-
-  const slug =
-    String(user.Slug || "").trim();
-
-  if (!slug) {
-
-    alert(
-      "Shop slug not found."
-    );
-
-    return;
-  }
-
-  const shopUrl =
-    window.location.origin +
-    window.location.pathname.replace(
-      "dashboard.html",
-      ""
-    ) +
-    "?slug=" +
-    encodeURIComponent(slug);
-
-  window.open(
-    shopUrl,
-    "_blank"
-  );
-
-}
-
-
-// ==========================================
-// COPY SHOP LINK
-// ==========================================
-
-async function copyShopLink() {
-
-  const user =
-    dashboardData.user;
-
-  const slug =
-    String(user.Slug || "").trim();
-
-  if (!slug) {
-
-    alert(
-      "Shop slug not found."
-    );
-
-    return;
-  }
-
-  const shopUrl =
-    window.location.origin +
-    window.location.pathname.replace(
-      "dashboard.html",
-      ""
-    ) +
-    "?slug=" +
-    encodeURIComponent(slug);
-
-
-  try {
-
-    await navigator.clipboard.writeText(
-      shopUrl
-    );
-
-    const message =
-      document.getElementById(
-        "shopLinkMessage"
-      );
-
-    if (message) {
-
-      message.textContent =
-        "✓ Shop link copied";
-
-      setTimeout(() => {
-
-        message.textContent = "";
-
-      }, 2500);
-
-    }
-
-  } catch (error) {
-
-    console.error(error);
-
-    // Fallback for some browsers
-
-    const textarea =
-      document.createElement("textarea");
-
-    textarea.value = shopUrl;
-
-    document.body.appendChild(
-      textarea
-    );
-
-    textarea.select();
-
-    document.execCommand(
-      "copy"
-    );
-
-    textarea.remove();
-
-    const message =
-      document.getElementById(
-        "shopLinkMessage"
-      );
-
-    if (message) {
-
-      message.textContent =
-        "✓ Shop link copied";
-
-      setTimeout(() => {
-
-        message.textContent = "";
-
-      }, 2500);
-
-    }
-
-  }
 
 }
 
@@ -893,18 +1536,26 @@ async function copyShopLink() {
 // PRODUCT CARD
 // ==========================================
 
-function productDashboardCard(product) {
+function productDashboardCard(
+  product
+) {
 
   let image = "";
 
   if (product.Images) {
+
     image =
-      String(product.Images)
+      String(
+        product.Images
+      )
         .split("|")[0]
         .trim();
+
   }
 
+
   return `
+
     <div style="
       border:1px solid #eee;
       border-radius:15px;
@@ -912,9 +1563,12 @@ function productDashboardCard(product) {
       background:#fff;
     ">
 
+
       ${
         image
+
           ?
+
           `
             <img
               src="${esc(image)}"
@@ -926,7 +1580,9 @@ function productDashboardCard(product) {
               "
             >
           `
+
           :
+
           `
             <div style="
               width:100%;
@@ -942,34 +1598,49 @@ function productDashboardCard(product) {
           `
       }
 
-      <div style="padding:12px;">
+
+      <div style="
+        padding:12px;
+      ">
+
 
         <div style="
           font-weight:700;
           margin-bottom:5px;
         ">
-          ${esc(product.Name)}
+          ${esc(
+            product.Name
+          )}
         </div>
+
 
         ${
           product.Price !== ""
+
             ?
+
             `
               <div style="
                 color:#555;
                 margin-bottom:10px;
               ">
-                ₹${esc(product.Price)}
+                ₹${esc(
+                  product.Price
+                )}
               </div>
             `
+
             :
+
             ""
         }
+
 
         <div style="
           display:flex;
           gap:7px;
         ">
+
 
           <button
             onclick='openProductEditor(${JSON.stringify(product).replace(/'/g,"&#039;")})'
@@ -984,8 +1655,11 @@ function productDashboardCard(product) {
             Edit
           </button>
 
+
           <button
-            onclick="removeProduct('${esc(product.Product_ID)}')"
+            onclick="removeProduct('${esc(
+              product.Product_ID
+            )}')"
             style="
               padding:9px;
               border:0;
@@ -997,12 +1671,15 @@ function productDashboardCard(product) {
             Delete
           </button>
 
+
         </div>
 
       </div>
 
     </div>
+
   `;
+
 }
 
 
@@ -1015,10 +1692,15 @@ function openProfileEditor() {
   const user =
     dashboardData.user;
 
-  const overlay =
-    document.createElement("div");
 
-  overlay.id = "editOverlay";
+  const overlay =
+    document.createElement(
+      "div"
+    );
+
+  overlay.id =
+    "editOverlay";
+
 
   overlay.style.cssText = `
     position:fixed;
@@ -1028,6 +1710,7 @@ function openProfileEditor() {
     overflow:auto;
     padding:20px;
   `;
+
 
   overlay.innerHTML = `
 
@@ -1040,15 +1723,19 @@ function openProfileEditor() {
       font-family:system-ui;
     ">
 
+
       <div style="
         display:flex;
         justify-content:space-between;
         align-items:center;
       ">
 
-        <h2 style="margin:0;">
+        <h2 style="
+          margin:0;
+        ">
           Edit Profile
         </h2>
+
 
         <button
           onclick="closeEditor()"
@@ -1074,9 +1761,12 @@ function openProfileEditor() {
         text-align:center;
       ">
 
+
         ${
           user.Logo
+
             ?
+
             `
               <img
                 id="logoPreview"
@@ -1090,7 +1780,9 @@ function openProfileEditor() {
                 "
               >
             `
+
             :
+
             `
               <div
                 id="logoPreview"
@@ -1111,15 +1803,20 @@ function openProfileEditor() {
             `
         }
 
+
         <br>
+
 
         <input
           id="logoFile"
           type="file"
           accept="image/*"
           capture="environment"
-          style="margin-top:10px;"
+          style="
+            margin-top:10px;
+          "
         >
+
 
         <div style="
           color:#777;
@@ -1128,6 +1825,7 @@ function openProfileEditor() {
         ">
           JPG recommended • Maximum 100 KB
         </div>
+
 
         <button
           onclick="uploadLogo()"
@@ -1143,6 +1841,7 @@ function openProfileEditor() {
           Upload Logo
         </button>
 
+
         <div
           id="logoMessage"
           style="
@@ -1151,10 +1850,14 @@ function openProfileEditor() {
           "
         ></div>
 
+
       </div>
 
 
-      <div style="margin-top:20px;">
+      <div style="
+        margin-top:20px;
+      ">
+
 
         ${profileInput(
           "Business_Name",
@@ -1162,11 +1865,13 @@ function openProfileEditor() {
           user.Business_Name
         )}
 
+
         ${profileInput(
           "Owner_Name",
           "Owner Name",
           user.Owner_Name
         )}
+
 
         ${profileInput(
           "Mobile",
@@ -1174,11 +1879,13 @@ function openProfileEditor() {
           user.Mobile
         )}
 
+
         ${profileInput(
           "WhatsApp",
           "WhatsApp",
           user.WhatsApp
         )}
+
 
         ${profileInput(
           "Email",
@@ -1186,11 +1893,13 @@ function openProfileEditor() {
           user.Email
         )}
 
+
         ${profileInput(
           "Address",
           "Address",
           user.Address
         )}
+
 
         ${profileInput(
           "Map_Link",
@@ -1198,11 +1907,13 @@ function openProfileEditor() {
           user.Map_Link
         )}
 
+
         ${profileInput(
           "Theme_ID",
           "Theme ID",
           user.Theme_ID
         )}
+
 
       </div>
 
@@ -1224,6 +1935,7 @@ function openProfileEditor() {
         SAVE PROFILE
       </button>
 
+
       <div
         id="profileMessage"
         style="
@@ -1232,10 +1944,16 @@ function openProfileEditor() {
         "
       ></div>
 
+
     </div>
+
   `;
 
-  document.body.appendChild(overlay);
+
+  document.body.appendChild(
+    overlay
+  );
+
 }
 
 
@@ -1246,16 +1964,21 @@ function profileInput(
 ) {
 
   return `
+
     <label style="
       display:block;
       margin-top:14px;
       font-weight:600;
     ">
+
       ${esc(label)}
+
 
       <input
         id="profile_${esc(id)}"
-        value="${esc(value || "")}"
+        value="${esc(
+          value || ""
+        )}"
         style="
           display:block;
           width:100%;
@@ -1269,7 +1992,9 @@ function profileInput(
       >
 
     </label>
+
   `;
+
 }
 
 
@@ -1281,8 +2006,11 @@ function closeEditor() {
     );
 
   if (overlay) {
+
     overlay.remove();
+
   }
+
 }
 
 
@@ -1293,6 +2021,7 @@ function closeEditor() {
 async function saveProfileChanges() {
 
   const fields = [
+
     "Business_Name",
     "Owner_Name",
     "Mobile",
@@ -1301,54 +2030,80 @@ async function saveProfileChanges() {
     "Address",
     "Map_Link",
     "Theme_ID"
+
   ];
 
+
   const payload = {
-    action: "saveProfile",
+
+    action:
+      "saveProfile",
+
     User_ID:
       dashboardData.user.User_ID
+
   };
 
-  fields.forEach(field => {
 
-    const input =
-      document.getElementById(
-        "profile_" + field
-      );
+  fields.forEach(
+    field => {
 
-    if (input) {
-      payload[field] =
-        input.value.trim();
+      const input =
+        document.getElementById(
+          "profile_" +
+          field
+        );
+
+      if (input) {
+
+        payload[field] =
+          input.value.trim();
+
+      }
+
     }
+  );
 
-  });
 
   const message =
     document.getElementById(
       "profileMessage"
     );
 
+
   message.textContent =
     "Saving...";
+
 
   try {
 
     const response =
-      await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify(payload)
-      });
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
+
 
     const result =
       await response.json();
 
+
     if (!result.ok) {
 
-      message.style.color = "#c00";
+      message.style.color =
+        "#c00";
 
       message.textContent =
         result.error ||
@@ -1357,30 +2112,37 @@ async function saveProfileChanges() {
       return;
     }
 
-    message.style.color = "green";
+
+    message.style.color =
+      "green";
 
     message.textContent =
       "Profile saved successfully";
+
 
     await loadDashboard(
       dashboardData.user.User_ID
     );
 
-    setTimeout(() => {
 
-      closeEditor();
+    setTimeout(
+      closeEditor,
+      700
+    );
 
-    }, 700);
 
   } catch (error) {
 
     console.error(error);
 
-    message.style.color = "#c00";
+    message.style.color =
+      "#c00";
 
     message.textContent =
       "Connection error";
+
   }
+
 }
 
 
@@ -1400,12 +2162,14 @@ async function uploadLogo() {
       "logoMessage"
     );
 
+
   if (
     !fileInput ||
     !fileInput.files.length
   ) {
 
-    message.style.color = "#c00";
+    message.style.color =
+      "#c00";
 
     message.textContent =
       "Please select logo first";
@@ -1413,12 +2177,18 @@ async function uploadLogo() {
     return;
   }
 
+
   const file =
     fileInput.files[0];
 
-  if (file.size > 100 * 1024) {
 
-    message.style.color = "#c00";
+  if (
+    file.size >
+    100 * 1024
+  ) {
+
+    message.style.color =
+      "#c00";
 
     message.textContent =
       "Logo must be 100 KB or smaller";
@@ -1426,39 +2196,63 @@ async function uploadLogo() {
     return;
   }
 
-  message.style.color = "#555";
+
+  message.style.color =
+    "#555";
 
   message.textContent =
     "Uploading logo...";
 
+
   try {
 
     const base64 =
-      await fileToBase64(file);
+      await fileToBase64(
+        file
+      );
+
 
     const payload = {
-      action: "saveLogo",
+
+      action:
+        "saveLogo",
+
       User_ID:
         dashboardData.user.User_ID,
-      base64: base64
+
+      base64:
+        base64
+
     };
 
+
     const response =
-      await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify(payload)
-      });
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
+
 
     const result =
       await response.json();
 
+
     if (!result.ok) {
 
-      message.style.color = "#c00";
+      message.style.color =
+        "#c00";
 
       message.textContent =
         result.error ||
@@ -1467,22 +2261,30 @@ async function uploadLogo() {
       return;
     }
 
-    message.style.color = "green";
+
+    message.style.color =
+      "green";
 
     message.textContent =
       "Logo uploaded successfully";
 
+
     dashboardData.user.Logo =
       result.imageUrl;
+
 
     const preview =
       document.getElementById(
         "logoPreview"
       );
 
+
     if (preview) {
 
-      if (preview.tagName === "IMG") {
+      if (
+        preview.tagName ===
+        "IMG"
+      ) {
 
         preview.src =
           result.imageUrl;
@@ -1490,9 +2292,12 @@ async function uploadLogo() {
       } else {
 
         preview.outerHTML = `
+
           <img
             id="logoPreview"
-            src="${esc(result.imageUrl)}"
+            src="${esc(
+              result.imageUrl
+            )}"
             style="
               width:100px;
               height:100px;
@@ -1501,35 +2306,50 @@ async function uploadLogo() {
               border-radius:15px;
             "
           >
+
         `;
+
       }
 
     }
+
 
   } catch (error) {
 
     console.error(error);
 
-    message.style.color = "#c00";
+    message.style.color =
+      "#c00";
 
     message.textContent =
       "Logo upload error";
+
   }
+
 }
 
 
-function fileToBase64(file) {
+function fileToBase64(
+  file
+) {
 
   return new Promise(
-    (resolve, reject) => {
+    (
+      resolve,
+      reject
+    ) => {
 
       const reader =
         new FileReader();
 
+
       reader.onload = () => {
 
         const result =
-          String(reader.result);
+          String(
+            reader.result
+          );
+
 
         resolve(
           result.split(",")[1]
@@ -1537,12 +2357,18 @@ function fileToBase64(file) {
 
       };
 
+
       reader.onerror =
         reject;
 
-      reader.readAsDataURL(file);
+
+      reader.readAsDataURL(
+        file
+      );
+
     }
   );
+
 }
 
 
@@ -1550,17 +2376,25 @@ function fileToBase64(file) {
 // PRODUCT EDITOR
 // ==========================================
 
-function openProductEditor(product = null) {
+function openProductEditor(
+  product = null
+) {
 
   editingProductId =
     product
       ? product.Product_ID
       : "";
 
-  const overlay =
-    document.createElement("div");
 
-  overlay.id = "productOverlay";
+  const overlay =
+    document.createElement(
+      "div"
+    );
+
+
+  overlay.id =
+    "productOverlay";
+
 
   overlay.style.cssText = `
     position:fixed;
@@ -1571,22 +2405,29 @@ function openProductEditor(product = null) {
     padding:20px;
   `;
 
+
   const categoryOptions =
     dashboardData.categories
-      .map(c => `
-        <option
-          value="${esc(c.Name)}"
-          ${
-            product &&
-            product.Category === c.Name
-              ? "selected"
-              : ""
-          }
-        >
-          ${esc(c.Name)}
-        </option>
-      `)
+      .map(
+        c => `
+
+          <option
+            value="${esc(c.Name)}"
+            ${
+              product &&
+              product.Category ===
+              c.Name
+                ? "selected"
+                : ""
+            }
+          >
+            ${esc(c.Name)}
+          </option>
+
+        `
+      )
       .join("");
+
 
   overlay.innerHTML = `
 
@@ -1599,18 +2440,22 @@ function openProductEditor(product = null) {
       font-family:system-ui;
     ">
 
+
       <div style="
         display:flex;
         justify-content:space-between;
       ">
 
-        <h2 style="margin:0;">
+        <h2 style="
+          margin:0;
+        ">
           ${
             product
               ? "Edit Product"
               : "New Product"
           }
         </h2>
+
 
         <button
           onclick="closeProductEditor()"
@@ -1635,12 +2480,15 @@ function openProductEditor(product = null) {
         product?.Name
       )}
 
+
       <label style="
         display:block;
         margin-top:14px;
         font-weight:600;
       ">
+
         Category
+
 
         <select
           id="productCategory"
@@ -1670,11 +2518,13 @@ function openProductEditor(product = null) {
         product?.Code
       )}
 
+
       ${productInput(
         "productPrice",
         "Price",
         product?.Price
       )}
+
 
       ${productInput(
         "productDescription",
@@ -1688,7 +2538,9 @@ function openProductEditor(product = null) {
         margin-top:14px;
         font-weight:600;
       ">
+
         Product Image
+
 
         <input
           id="productImageFile"
@@ -1700,6 +2552,7 @@ function openProductEditor(product = null) {
             margin-top:7px;
           "
         >
+
       </label>
 
 
@@ -1729,10 +2582,16 @@ function openProductEditor(product = null) {
         "
       ></div>
 
+
     </div>
+
   `;
 
-  document.body.appendChild(overlay);
+
+  document.body.appendChild(
+    overlay
+  );
+
 }
 
 
@@ -1743,16 +2602,21 @@ function productInput(
 ) {
 
   return `
+
     <label style="
       display:block;
       margin-top:14px;
       font-weight:600;
     ">
+
       ${esc(label)}
+
 
       <input
         id="${esc(id)}"
-        value="${esc(value || "")}"
+        value="${esc(
+          value || ""
+        )}"
         style="
           display:block;
           width:100%;
@@ -1763,8 +2627,11 @@ function productInput(
           border-radius:10px;
         "
       >
+
     </label>
+
   `;
+
 }
 
 
@@ -1776,8 +2643,11 @@ function closeProductEditor() {
     );
 
   if (overlay) {
+
     overlay.remove();
+
   }
+
 }
 
 
@@ -1792,24 +2662,31 @@ async function saveProductChanges() {
       "productName"
     ).value.trim();
 
+
   if (!name) {
 
-    alert("Product name required");
+    alert(
+      "Product name required"
+    );
 
     return;
   }
+
 
   const message =
     document.getElementById(
       "productMessage"
     );
 
+
   message.textContent =
     "Saving product...";
 
+
   const payload = {
 
-    action: "saveProduct",
+    action:
+      "saveProduct",
 
     User_ID:
       dashboardData.user.User_ID,
@@ -1845,24 +2722,36 @@ async function saveProductChanges() {
 
   };
 
+
   try {
 
     const response =
-      await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify(payload)
-      });
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
+
 
     const result =
       await response.json();
 
+
     if (!result.ok) {
 
-      message.style.color = "#c00";
+      message.style.color =
+        "#c00";
 
       message.textContent =
         result.error ||
@@ -1871,11 +2760,12 @@ async function saveProductChanges() {
       return;
     }
 
-    // Upload image if selected
+
     const fileInput =
       document.getElementById(
         "productImageFile"
       );
+
 
     if (
       fileInput &&
@@ -1885,7 +2775,11 @@ async function saveProductChanges() {
       const file =
         fileInput.files[0];
 
-      if (file.size > 2 * 1024 * 1024) {
+
+      if (
+        file.size >
+        2 * 1024 * 1024
+      ) {
 
         message.textContent =
           "Product saved. Image is larger than 2 MB.";
@@ -1893,56 +2787,75 @@ async function saveProductChanges() {
       } else {
 
         const base64 =
-          await fileToBase64(file);
+          await fileToBase64(
+            file
+          );
 
-        await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify({
 
-            action:
-              "saveProductImage",
+        await fetch(
+          API_URL,
+          {
+            method:"POST",
 
-            User_ID:
-              dashboardData.user.User_ID,
+            headers:{
+              "Content-Type":
+                "text/plain;charset=utf-8"
+            },
 
-            Product_ID:
-              result.Product_ID,
+            body:
+              JSON.stringify({
 
-            base64:
-              base64
+                action:
+                  "saveProductImage",
 
-          })
-        });
+                User_ID:
+                  dashboardData.user.User_ID,
+
+                Product_ID:
+                  result.Product_ID,
+
+                base64:
+                  base64
+
+              })
+          }
+        );
+
       }
+
     }
 
-    message.style.color = "green";
+
+    message.style.color =
+      "green";
 
     message.textContent =
       "Product saved successfully";
 
+
     await loadDashboard(
       dashboardData.user.User_ID
     );
+
 
     setTimeout(
       closeProductEditor,
       700
     );
 
+
   } catch (error) {
 
     console.error(error);
 
-    message.style.color = "#c00";
+    message.style.color =
+      "#c00";
 
     message.textContent =
       "Connection error";
+
   }
+
 }
 
 
@@ -1950,41 +2863,53 @@ async function saveProductChanges() {
 // DELETE PRODUCT
 // ==========================================
 
-async function removeProduct(productId) {
+async function removeProduct(
+  productId
+) {
 
   if (
     !confirm(
       "Delete this product?"
     )
   ) {
+
     return;
   }
+
 
   try {
 
     const response =
-      await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify({
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
 
-          action:
-            "deleteProduct",
+          headers:{
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
 
-          User_ID:
-            dashboardData.user.User_ID,
+          body:
+            JSON.stringify({
 
-          Product_ID:
-            productId
+              action:
+                "deleteProduct",
 
-        })
-      });
+              User_ID:
+                dashboardData.user.User_ID,
+
+              Product_ID:
+                productId
+
+            })
+        }
+      );
+
 
     const result =
       await response.json();
+
 
     if (!result.ok) {
 
@@ -1996,9 +2921,11 @@ async function removeProduct(productId) {
       return;
     }
 
+
     await loadDashboard(
       dashboardData.user.User_ID
     );
+
 
   } catch (error) {
 
@@ -2007,7 +2934,9 @@ async function removeProduct(productId) {
     alert(
       "Connection error"
     );
+
   }
+
 }
 
 
@@ -2022,43 +2951,60 @@ function openCategoryEditor() {
       "Enter new category name:"
     );
 
-  if (!name || !name.trim()) {
+
+  if (
+    !name ||
+    !name.trim()
+  ) {
+
     return;
   }
+
 
   saveCategory(
     name.trim()
   );
+
 }
 
 
-async function saveCategory(name) {
+async function saveCategory(
+  name
+) {
 
   try {
 
     const response =
-      await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify({
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
 
-          action:
-            "saveCategory",
+          headers:{
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
 
-          User_ID:
-            dashboardData.user.User_ID,
+          body:
+            JSON.stringify({
 
-          Name:
-            name
+              action:
+                "saveCategory",
 
-        })
-      });
+              User_ID:
+                dashboardData.user.User_ID,
+
+              Name:
+                name
+
+            })
+        }
+      );
+
 
     const result =
       await response.json();
+
 
     if (!result.ok) {
 
@@ -2070,9 +3016,11 @@ async function saveCategory(name) {
       return;
     }
 
+
     await loadDashboard(
       dashboardData.user.User_ID
     );
+
 
   } catch (error) {
 
@@ -2081,7 +3029,9 @@ async function saveCategory(name) {
     alert(
       "Connection error"
     );
+
   }
+
 }
 
 
@@ -2093,15 +3043,22 @@ function logoutUser() {
 
   clearSession();
 
+
   dashboardData = {
-    user: null,
-    products: [],
-    categories: []
+
+    user:null,
+
+    products:[],
+
+    categories:[]
+
   };
+
 
   window.location.replace(
     "./dashboard.html"
   );
+
 }
 
 
@@ -2118,7 +3075,10 @@ function startDashboard() {
     getSession();
 
 
+  // ----------------------------------------
   // NO USER ID
+  // ----------------------------------------
+
   if (!urlUserId) {
 
     if (
@@ -2136,13 +3096,17 @@ function startDashboard() {
       return;
     }
 
+
     renderLogin();
 
     return;
   }
 
 
-  // URL HAS USER ID BUT NO LOGIN
+  // ----------------------------------------
+  // USER ID BUT NO SESSION
+  // ----------------------------------------
+
   if (
     !session ||
     !session.User_ID
@@ -2154,10 +3118,18 @@ function startDashboard() {
   }
 
 
-  // WRONG USER ID
+  // ----------------------------------------
+  // WRONG USER
+  // ----------------------------------------
+
   if (
-    String(session.User_ID).toLowerCase() !==
-    String(urlUserId).toLowerCase()
+    String(
+      session.User_ID
+    ).toLowerCase() !==
+
+    String(
+      urlUserId
+    ).toLowerCase()
   ) {
 
     goToLogin();
@@ -2166,10 +3138,14 @@ function startDashboard() {
   }
 
 
+  // ----------------------------------------
   // VALID SESSION
+  // ----------------------------------------
+
   loadDashboard(
     session.User_ID
   );
+
 }
 
 
