@@ -6,205 +6,289 @@
 <meta charset="utf-8">
 
 <meta name="viewport"
-      content="width=device-width,initial-scale=1">
+content="width=device-width,initial-scale=1">
 
-<meta name="theme-color"
-      content="#111827">
-
-<title>Master Admin - Digital Shop</title>
+<title>Digital Shop - Master Admin</title>
 
 <style>
 
 *{
-  box-sizing:border-box;
+box-sizing:border-box;
 }
 
 body{
-  margin:0;
-  font-family:Arial,system-ui,sans-serif;
-  background:#f5f7fb;
-  color:#111827;
+margin:0;
+font-family:Arial,system-ui,sans-serif;
+background:#f4f6f9;
+color:#111827;
 }
 
 .top{
-  background:#111827;
-  color:#fff;
-  padding:16px;
+background:#111827;
+color:white;
+padding:15px;
+position:sticky;
+top:0;
+z-index:20;
 }
 
 .top-inner{
-  max-width:1200px;
-  margin:auto;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
+max-width:1250px;
+margin:auto;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 .brand{
-  font-size:20px;
-  font-weight:700;
+font-size:20px;
+font-weight:700;
 }
 
 .container{
-  max-width:1200px;
-  margin:auto;
-  padding:18px;
+max-width:1250px;
+margin:auto;
+padding:18px;
 }
 
 .card{
-  background:#fff;
-  border-radius:16px;
-  padding:20px;
-  box-shadow:0 4px 20px rgba(0,0,0,.06);
-  margin-bottom:18px;
+background:white;
+border-radius:16px;
+padding:20px;
+box-shadow:0 4px 20px rgba(0,0,0,.06);
+margin-bottom:18px;
 }
 
 .login{
-  max-width:450px;
-  margin:60px auto;
+max-width:420px;
+margin:70px auto;
 }
 
-input{
-  width:100%;
-  padding:13px;
-  border:1px solid #d1d5db;
-  border-radius:9px;
-  font-size:16px;
+input,
+textarea,
+select{
+width:100%;
+padding:11px;
+border:1px solid #d1d5db;
+border-radius:8px;
+font:inherit;
 }
 
 button{
-  border:0;
-  background:#111827;
-  color:#fff;
-  padding:11px 16px;
-  border-radius:9px;
-  cursor:pointer;
+border:0;
+background:#111827;
+color:white;
+padding:10px 15px;
+border-radius:8px;
+cursor:pointer;
 }
 
 button:hover{
-  opacity:.9;
+opacity:.9;
+}
+
+.btn-green{
+background:#059669;
+}
+
+.btn-blue{
+background:#2563eb;
+}
+
+.btn-red{
+background:#dc2626;
+}
+
+.btn-gray{
+background:#e5e7eb;
+color:#111827;
+}
+
+.toolbar{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:15px;
 }
 
 .search{
-  margin-bottom:15px;
+flex:1;
+min-width:220px;
 }
 
 .stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-bottom:18px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:12px;
+margin-bottom:18px;
 }
 
 .stat{
-  background:#fff;
-  padding:18px;
-  border-radius:14px;
-  box-shadow:0 3px 15px rgba(0,0,0,.05);
+background:white;
+padding:18px;
+border-radius:14px;
+box-shadow:0 3px 15px rgba(0,0,0,.05);
 }
 
 .stat b{
-  display:block;
-  font-size:28px;
-  margin-top:5px;
+display:block;
+font-size:28px;
+margin-top:5px;
 }
 
 .user{
-  background:#fff;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:12px;
-  box-shadow:0 3px 15px rgba(0,0,0,.05);
+background:white;
+border-radius:14px;
+padding:17px;
+margin-bottom:12px;
+box-shadow:0 3px 15px rgba(0,0,0,.05);
 }
 
 .user-head{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:flex-start;
+display:flex;
+justify-content:space-between;
+gap:12px;
 }
 
 .business{
-  font-size:19px;
-  font-weight:700;
+font-size:19px;
+font-weight:700;
 }
 
 .muted{
-  color:#6b7280;
-  font-size:14px;
-  margin-top:4px;
+font-size:13px;
+color:#6b7280;
+margin-top:4px;
 }
 
 .badge{
-  display:inline-block;
-  padding:5px 9px;
-  border-radius:999px;
-  font-size:12px;
-  background:#dcfce7;
-  color:#166534;
+display:inline-block;
+padding:5px 10px;
+border-radius:999px;
+font-size:12px;
+background:#dcfce7;
+color:#166534;
 }
 
-.badge.inactive{
-  background:#fee2e2;
-  color:#991b1b;
+.badge.off{
+background:#fee2e2;
+color:#991b1b;
+}
+
+.user-info{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:9px;
+margin-top:14px;
 }
 
 .info{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  margin-top:15px;
-}
-
-.info div{
-  background:#f9fafb;
-  padding:10px;
-  border-radius:8px;
-  font-size:13px;
+background:#f8fafc;
+padding:10px;
+border-radius:8px;
+font-size:13px;
 }
 
 .actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:15px;
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-top:14px;
 }
 
-.shop{
-  background:#2563eb;
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+display:none;
+align-items:center;
+justify-content:center;
+padding:15px;
+z-index:100;
 }
 
-.dashboard{
-  background:#059669;
+.modal.show{
+display:flex;
 }
 
-.error{
-  color:#b91c1c;
-  margin-top:10px;
+.modal-box{
+background:white;
+width:100%;
+max-width:700px;
+max-height:92vh;
+overflow:auto;
+border-radius:18px;
+padding:20px;
 }
 
-#adminPanel{
-  display:none;
+.modal-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.close{
+background:#eee;
+color:#111;
+border-radius:50%;
+width:35px;
+height:35px;
+padding:0;
+font-size:20px;
+}
+
+.form-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+}
+
+.field label{
+display:block;
+font-size:12px;
+font-weight:bold;
+margin-bottom:5px;
+}
+
+.full{
+grid-column:1/-1;
+}
+
+.notice{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#111827;
+color:white;
+padding:12px 18px;
+border-radius:10px;
+display:none;
+z-index:500;
 }
 
 @media(max-width:700px){
 
-  .container{
-    padding:12px;
-  }
+.stats{
+grid-template-columns:repeat(2,1fr);
+}
 
-  .stats{
-    grid-template-columns:repeat(2,1fr);
-  }
+.user-info{
+grid-template-columns:repeat(2,1fr);
+}
 
-  .info{
-    grid-template-columns:repeat(2,1fr);
-  }
+.form-grid{
+grid-template-columns:1fr;
+}
 
-  .user-head{
-    flex-direction:column;
-  }
+.full{
+grid-column:auto;
+}
+
+.user-head{
+flex-direction:column;
+}
 
 }
 
@@ -216,13 +300,13 @@ button:hover{
 
 <header class="top">
 
-  <div class="top-inner">
+<div class="top-inner">
 
-    <div class="brand">
-      Digital Shop — Master Admin
-    </div>
+<div class="brand">
+Digital Shop — Master Admin
+</div>
 
-  </div>
+</div>
 
 </header>
 
@@ -233,79 +317,144 @@ button:hover{
 <!-- LOGIN -->
 
 <div id="loginBox"
-     class="card login">
+class="card login">
 
-  <h2>Master Admin Login</h2>
+<h2>Master Admin</h2>
 
-  <p>
-    All users देखने के लिए admin password डालें.
-  </p>
+<p>
+All users manage करने के लिए login करें.
+</p>
 
-  <input
-    id="password"
-    type="password"
-    placeholder="Admin Password">
+<input
+id="adminPassword"
+type="password"
+placeholder="Admin Password">
 
-  <br><br>
+<br><br>
 
-  <button onclick="adminLogin()">
-    Login
-  </button>
+<button onclick="loginAdmin()">
+Login
+</button>
 
-  <div id="loginError"
-       class="error">
-  </div>
+<p id="loginError"></p>
 
 </div>
 
 
-<!-- ADMIN PANEL -->
+<!-- PANEL -->
 
-<div id="adminPanel">
-
-  <div class="stats">
-
-    <div class="stat">
-      Total Users
-      <b id="totalUsers">0</b>
-    </div>
-
-    <div class="stat">
-      Active Users
-      <b id="activeUsers">0</b>
-    </div>
-
-    <div class="stat">
-      Products
-      <b id="totalProducts">0</b>
-    </div>
-
-    <div class="stat">
-      Plans
-      <b id="totalPlans">0</b>
-    </div>
-
-  </div>
+<div id="panel"
+style="display:none">
 
 
-  <div class="card">
+<div class="stats">
 
-    <h2>All Users</h2>
+<div class="stat">
+Users
+<b id="totalUsers">0</b>
+</div>
 
-    <input
-      class="search"
-      id="search"
-      placeholder="Search business, owner, mobile, user ID..."
-      oninput="renderUsers()">
+<div class="stat">
+Active
+<b id="activeUsers">0</b>
+</div>
 
-    <div id="users">
-      Loading users...
-    </div>
+<div class="stat">
+Products
+<b id="totalProducts">0</b>
+</div>
 
-  </div>
+<div class="stat">
+Plans
+<b id="totalPlans">0</b>
+</div>
 
 </div>
 
+
+<div class="card">
+
+<div class="toolbar">
+
+<input
+class="search"
+id="search"
+placeholder="Search user / business / mobile..."
+oninput="renderUsers()">
+
+<button
+class="btn-green"
+onclick="newUser()">
+
++ New User
+
+</button>
+
+</div>
+
+<div id="users">
+Loading...
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- USER MODAL -->
+
+<div id="userModal"
+class="modal">
+
+<div class="modal-box">
+
+<div class="modal-head">
+
+<h2 id="modalTitle">
+Edit User
+</h2>
+
+<button
+class="close"
+onclick="closeModal()">
+×
+</button>
+
+</div>
+
+<div id="form"
+class="form-grid">
+</div>
+
+<br>
+
+<button
+class="btn-green"
+onclick="saveUser()">
+
+Save User
+
+</button>
+
+<button
+class="btn-gray"
+onclick="closeModal()">
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+
+<div id="notice"
+class="notice">
+Saved
 </div>
 
 
@@ -315,287 +464,642 @@ const API_URL =
 "https://script.google.com/macros/s/AKfycbwbU3NlHVOUCTpSYQoyO-WsqMkd3RyPFKeq1YPh1zlKF3BI_7UlDeIpYuK4TxE15B0uTQ/exec";
 
 
-let users = [];
+let adminPassword="";
 
-let adminPassword = "";
+let headers=[];
+
+let users=[];
+
+let editing=false;
 
 
 function esc(value=""){
 
-  return String(value)
-    .replace(/[&<>"']/g,m=>({
-
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#039;"
-
-    }[m]));
+return String(value)
+.replace(/[&<>"']/g,m=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m]));
 
 }
 
 
-async function adminLogin(){
+async function loginAdmin(){
 
-  const password =
-    document.getElementById("password").value.trim();
+const password =
+document
+.getElementById("adminPassword")
+.value
+.trim();
 
-  if(!password){
+if(!password)return;
 
-    document.getElementById("loginError")
-      .textContent =
-      "Password enter करें.";
+try{
 
-    return;
-  }
+const response =
+await fetch(
+API_URL+
+"?action=adminUsers&password="+
+encodeURIComponent(password)
+);
 
-  document.getElementById("loginError")
-    .textContent =
-    "Loading...";
+const result =
+await response.json();
 
-  try{
+if(!result.ok){
 
-    const response =
-      await fetch(
-        API_URL +
-        "?action=adminUsers&password=" +
-        encodeURIComponent(password)
-      );
+document
+.getElementById("loginError")
+.textContent =
+result.error ||
+"Login failed";
 
-    const result =
-      await response.json();
+return;
 
-    if(!result.ok){
+}
 
-      document.getElementById("loginError")
-        .textContent =
-        result.error || "Login failed";
+adminPassword=password;
 
-      return;
-    }
+headers=result.headers||[];
 
-    adminPassword = password;
+users=result.users||[];
 
-    users = result.users || [];
+document
+.getElementById("loginBox")
+.style.display="none";
 
-    document.getElementById("loginBox")
-      .style.display="none";
+document
+.getElementById("panel")
+.style.display="block";
 
-    document.getElementById("adminPanel")
-      .style.display="block";
+updateStats();
 
-    updateStats();
+renderUsers();
 
-    renderUsers();
+}catch(error){
 
-  }catch(error){
+console.error(error);
 
-    console.error(error);
+document
+.getElementById("loginError")
+.textContent=
+"Connection error";
 
-    document.getElementById("loginError")
-      .textContent =
-      "Server connection error.";
-
-  }
+}
 
 }
 
 
 function updateStats(){
 
-  document.getElementById("totalUsers")
-    .textContent =
-    users.length;
+document
+.getElementById("totalUsers")
+.textContent=
+users.length;
 
-  document.getElementById("activeUsers")
-    .textContent =
-    users.filter(u =>
-      String(u.Status).toLowerCase()==="active"
-    ).length;
+document
+.getElementById("activeUsers")
+.textContent=
+users.filter(u=>
+String(u.Status)
+.toLowerCase()==="active"
+).length;
 
-  document.getElementById("totalProducts")
-    .textContent =
-    users.reduce(
-      (sum,u)=>sum+Number(u.Products||0),
-      0
-    );
+document
+.getElementById("totalProducts")
+.textContent=
+users.reduce(
+(a,u)=>a+Number(u.Products||0),
+0
+);
 
-  document.getElementById("totalPlans")
-    .textContent =
-    new Set(
-      users
-        .map(u=>u.Plan_ID)
-        .filter(Boolean)
-    ).size;
+document
+.getElementById("totalPlans")
+.textContent=
+new Set(
+users
+.map(u=>u.Plan_ID)
+.filter(Boolean)
+).size;
 
 }
 
 
 function renderUsers(){
 
-  const box =
-    document.getElementById("users");
+const box =
+document.getElementById("users");
 
-  const search =
-    document.getElementById("search")
-      .value
-      .toLowerCase()
-      .trim();
+const search =
+document
+.getElementById("search")
+.value
+.toLowerCase()
+.trim();
 
-  const filtered =
-    users.filter(u=>{
+const list =
+users.filter(u=>{
 
-      const text =
-        [
-          u.User_ID,
-          u.Business_Name,
-          u.Owner_Name,
-          u.Mobile,
-          u.Email,
-          u.Plan_ID
-        ]
-        .join(" ")
-        .toLowerCase();
+const text =
+[
+u.User_ID,
+u.Business_Name,
+u.Owner_Name,
+u.Mobile,
+u.Email,
+u.Plan_ID
+]
+.join(" ")
+.toLowerCase();
 
-      return text.includes(search);
+return text.includes(search);
 
-    });
-
-
-  if(!filtered.length){
-
-    box.innerHTML =
-      "<p>No users found.</p>";
-
-    return;
-  }
+});
 
 
-  box.innerHTML =
-    filtered.map(u=>{
+if(!list.length){
 
-      const status =
-        String(u.Status).toLowerCase();
+box.innerHTML=
+"<p>No users found.</p>";
 
-      const shopUrl =
-        location.origin +
-        location.pathname
-          .replace(
-            "admin.html",
-            "index.html"
-          ) +
-        "?slug=" +
-        encodeURIComponent(u.Slug || "");
+return;
+
+}
 
 
-      const dashboardUrl =
-        location.origin +
-        location.pathname
-          .replace(
-            "admin.html",
-            "dashboard.html"
-          ) +
-        "?userId=" +
-        encodeURIComponent(u.User_ID);
+box.innerHTML =
+list.map(u=>{
+
+const status =
+String(u.Status||"")
+.toLowerCase();
+
+const shop =
+location.origin+
+location.pathname
+.replace("admin.html","index.html")+
+"?slug="+
+encodeURIComponent(u.Slug||"");
+
+const dash =
+location.origin+
+location.pathname
+.replace("admin.html","dashboard.html")+
+"?userId="+
+encodeURIComponent(u.User_ID);
 
 
-      return `
+return `
 
-        <div class="user">
+<div class="user">
 
-          <div class="user-head">
+<div class="user-head">
 
-            <div>
+<div>
 
-              <div class="business">
-                ${esc(u.Business_Name)}
-              </div>
+<div class="business">
+${esc(u.Business_Name||"-")}
+</div>
 
-              <div class="muted">
-                User ID: ${esc(u.User_ID)}
-              </div>
+<div class="muted">
+User ID: ${esc(u.User_ID)}
+</div>
 
-              <div class="muted">
-                Owner: ${esc(u.Owner_Name)}
-              </div>
+<div class="muted">
+Owner: ${esc(u.Owner_Name||"-")}
+</div>
 
-            </div>
+</div>
 
-            <div>
+<div>
 
-              <span class="badge ${
-                status !== "active"
-                  ? "inactive"
-                  : ""
-              }">
+<span class="badge ${
+status==="active" ? "" : "off"
+}">
+${esc(u.Status||"-")}
+</span>
 
-                ${esc(u.Status || "-")}
+</div>
 
-              </span>
-
-            </div>
-
-          </div>
+</div>
 
 
-          <div class="info">
+<div class="user-info">
 
-            <div>
-              <b>Mobile</b><br>
-              ${esc(u.Mobile || "-")}
-            </div>
+<div class="info">
+<b>Mobile</b><br>
+${esc(u.Mobile||"-")}
+</div>
 
-            <div>
-              <b>Plan</b><br>
-              ${esc(u.Plan_ID || "-")}
-            </div>
+<div class="info">
+<b>Plan</b><br>
+${esc(u.Plan_ID||"-")}
+</div>
 
-            <div>
-              <b>Products</b><br>
-              ${esc(u.Products)}
-            </div>
+<div class="info">
+<b>Products</b><br>
+${esc(u.Products||0)}
+</div>
 
-            <div>
-              <b>Theme</b><br>
-              ${esc(u.Theme_ID || "-")}
-            </div>
+<div class="info">
+<b>Expiry</b><br>
+${esc(u.Expiry_Date||"-")}
+</div>
 
-          </div>
-
-
-          <div class="actions">
-
-            <button
-              class="shop"
-              onclick="window.open(
-                '${shopUrl}',
-                '_blank'
-              )">
-
-              Open Shop
-
-            </button>
+</div>
 
 
-            <button
-              class="dashboard"
-              onclick="window.open(
-                '${dashboardUrl}',
-                '_blank'
-              )">
+<div class="actions">
 
-              Open Dashboard
+<button
+class="btn-blue"
+onclick="editUser('${esc(u.User_ID)}')">
+✏️ Edit
+</button>
 
-            </button>
+<button
+onclick="window.open('${shop}','_blank')">
+🏪 Shop
+</button>
 
-          </div>
+<button
+class="btn-green"
+onclick="window.open('${dash}','_blank')">
+📊 Dashboard
+</button>
 
-        </div>
+<button
+class="${
+status==="active"
+?'btn-red'
+:'btn-green'
+}"
+onclick="toggleUser('${esc(u.User_ID)}')">
 
-      `;
+${
+status==="active"
+?'Deactivate'
+:'Activate'
+}
 
-    }).join("");
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+function newUser(){
+
+editing=false;
+
+document
+.getElementById("modalTitle")
+.textContent=
+"Add New User";
+
+buildForm({});
+
+document
+.getElementById("userModal")
+.classList.add("show");
+
+}
+
+
+function editUser(userId){
+
+const user =
+users.find(u=>
+String(u.User_ID)===
+String(userId)
+);
+
+if(!user)return;
+
+editing=true;
+
+document
+.getElementById("modalTitle")
+.textContent=
+"Edit User — "+
+(user.Business_Name||user.User_ID);
+
+buildForm(user);
+
+document
+.getElementById("userModal")
+.classList.add("show");
+
+}
+
+
+function buildForm(user){
+
+const form =
+document.getElementById("form");
+
+form.innerHTML="";
+
+
+headers.forEach(header=>{
+
+if(header==="Created_Date"){
+return;
+}
+
+const value =
+user[header] ?? "";
+
+const div =
+document.createElement("div");
+
+div.className=
+"field";
+
+
+const label =
+document.createElement("label");
+
+label.textContent=
+header;
+
+div.appendChild(label);
+
+
+let input;
+
+
+if(header==="Status"){
+
+input=
+document.createElement("select");
+
+[
+"Active",
+"Inactive"
+].forEach(v=>{
+
+const option =
+document.createElement("option");
+
+option.value=v;
+
+option.textContent=v;
+
+if(
+String(value)
+.toLowerCase()===
+v.toLowerCase()
+){
+option.selected=true;
+}
+
+input.appendChild(option);
+
+});
+
+}else{
+
+input=
+document.createElement("input");
+
+input.value=
+value;
+
+if(
+header==="User_ID" &&
+editing
+){
+input.disabled=true;
+}
+
+}
+
+
+input.dataset.header=
+header;
+
+div.appendChild(input);
+
+form.appendChild(div);
+
+});
+
+}
+
+
+async function saveUser(){
+
+const data={
+adminPassword:
+adminPassword
+};
+
+document
+.querySelectorAll("#form [data-header]")
+.forEach(input=>{
+
+data[input.dataset.header]=
+input.value;
+
+});
+
+
+try{
+
+const action =
+editing
+?"adminSaveUser"
+:"adminCreateUser";
+
+const result =
+await postData({
+...data,
+action:action
+});
+
+
+if(!result.ok){
+
+alert(
+result.error||
+"Save failed"
+);
+
+return;
+
+}
+
+closeModal();
+
+showNotice(
+editing
+?"User updated successfully."
+:"New user created successfully."
+);
+
+await reloadUsers();
+
+}catch(error){
+
+console.error(error);
+
+alert("Save failed.");
+
+}
+
+}
+
+
+async function toggleUser(userId){
+
+const user =
+users.find(u=>
+String(u.User_ID)===
+String(userId)
+);
+
+if(!user)return;
+
+const current =
+String(user.Status||"")
+.toLowerCase();
+
+const next =
+current==="active"
+?"Inactive"
+:"Active";
+
+if(
+!confirm(
+"User status "+next+
+" करना है?"
+)
+)return;
+
+
+const result =
+await postData({
+
+action:
+"adminToggleUser",
+
+adminPassword:
+adminPassword,
+
+User_ID:
+userId,
+
+Status:
+next
+
+});
+
+
+if(!result.ok){
+
+alert(
+result.error||
+"Status update failed"
+);
+
+return;
+
+}
+
+showNotice(
+"User status updated."
+);
+
+await reloadUsers();
+
+}
+
+
+async function reloadUsers(){
+
+const response =
+await fetch(
+API_URL+
+"?action=adminUsers&password="+
+encodeURIComponent(adminPassword)
+);
+
+const result =
+await response.json();
+
+if(result.ok){
+
+headers=
+result.headers||[];
+
+users=
+result.users||[];
+
+updateStats();
+
+renderUsers();
+
+}
+
+}
+
+
+async function postData(data){
+
+const response =
+await fetch(
+API_URL,
+{
+method:"POST",
+headers:{
+"Content-Type":
+"text/plain;charset=utf-8"
+},
+body:
+JSON.stringify(data)
+}
+);
+
+return await response.json();
+
+}
+
+
+function closeModal(){
+
+document
+.getElementById("userModal")
+.classList.remove("show");
+
+}
+
+
+function showNotice(message){
+
+const notice =
+document.getElementById("notice");
+
+notice.textContent=
+message;
+
+notice.style.display="block";
+
+setTimeout(()=>{
+
+notice.style.display="none";
+
+},2500);
 
 }
 
