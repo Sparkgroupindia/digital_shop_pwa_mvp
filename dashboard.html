@@ -504,6 +504,32 @@ label{
        <input id="pMap">
      </div>
 
+    <div>
+  <label>Business Logo</label>
+
+  <input
+    id="pLogo"
+    type="file"
+    accept="image/*"
+    capture="environment">
+
+  <div
+    id="logoStatus"
+    style="font-size:13px;margin-top:6px;color:#666">
+  </div>
+
+  <img
+    id="logoPreview"
+    style="
+      width:80px;
+      height:80px;
+      object-fit:contain;
+      border:1px solid #ddd;
+      border-radius:12px;
+      margin-top:8px;
+      display:none;">
+</div>
+
      <div>
 
        <label>
@@ -1029,45 +1055,49 @@ function fillCategories(){
 
 function openProfile(){
 
- const u =
- dashboardData.user;
+  const u =
+    dashboardData.user;
 
+  document.getElementById("pBusiness").value =
+    u.Business_Name || "";
 
- document.getElementById("pBusiness").value =
-   u.Business_Name || "";
+  document.getElementById("pOwner").value =
+    u.Owner_Name || "";
 
+  document.getElementById("pMobile").value =
+    u.Mobile || "";
 
- document.getElementById("pOwner").value =
-   u.Owner_Name || "";
+  document.getElementById("pWhatsApp").value =
+    u.WhatsApp || "";
 
+  document.getElementById("pEmail").value =
+    u.Email || "";
 
- document.getElementById("pMobile").value =
-   u.Mobile || "";
+  document.getElementById("pAddress").value =
+    u.Address || "";
 
+  document.getElementById("pMap").value =
+    u.Map_Link || "";
 
- document.getElementById("pWhatsApp").value =
-   u.WhatsApp || "";
+  document.getElementById("pTheme").value =
+    u.Theme_ID || "T01";
 
+  document.getElementById("pLogo").value = "";
 
- document.getElementById("pEmail").value =
-   u.Email || "";
+  document.getElementById("logoStatus").textContent = "";
 
+  const preview =
+    document.getElementById("logoPreview");
 
- document.getElementById("pAddress").value =
-   u.Address || "";
+  if (u.Logo) {
+    preview.src = u.Logo;
+    preview.style.display = "block";
+  } else {
+    preview.style.display = "none";
+  }
 
-
- document.getElementById("pMap").value =
-   u.Map_Link || "";
-
-
- document.getElementById("pTheme").value =
-   u.Theme_ID || "T01";
-
-
- document.getElementById("profileModal")
-   .classList.add("show");
-
+  document.getElementById("profileModal")
+    .classList.add("show");
 }
 
 
@@ -1083,83 +1113,113 @@ function closeProfile(){
 
 async function saveProfile(){
 
- const user =
- dashboardData.user;
+  const user =
+    dashboardData.user;
 
+  const payload = {
 
- const payload={
+    action: "saveProfile",
 
-   action:"saveProfile",
+    User_ID: user.User_ID,
 
-   User_ID:
-     user.User_ID,
+    Business_Name:
+      document.getElementById("pBusiness").value,
 
-   Business_Name:
-     document.getElementById(
-       "pBusiness"
-     ).value,
+    Owner_Name:
+      document.getElementById("pOwner").value,
 
-   Owner_Name:
-     document.getElementById(
-       "pOwner"
-     ).value,
+    Mobile:
+      document.getElementById("pMobile").value,
 
-   Mobile:
-     document.getElementById(
-       "pMobile"
-     ).value,
+    WhatsApp:
+      document.getElementById("pWhatsApp").value,
 
-   WhatsApp:
-     document.getElementById(
-       "pWhatsApp"
-     ).value,
+    Email:
+      document.getElementById("pEmail").value,
 
-   Email:
-     document.getElementById(
-       "pEmail"
-     ).value,
+    Address:
+      document.getElementById("pAddress").value,
 
-   Address:
-     document.getElementById(
-       "pAddress"
-     ).value,
+    Map_Link:
+      document.getElementById("pMap").value,
 
-   Map_Link:
-     document.getElementById(
-       "pMap"
-     ).value,
+    Theme_ID:
+      document.getElementById("pTheme").value
+  };
 
-   Theme_ID:
-     document.getElementById(
-       "pTheme"
-     ).value
+  const result =
+    await postData(payload);
 
- };
+  if (!result.ok) {
+    alert(result.error || "Profile save failed");
+    return;
+  }
 
+  const logoInput =
+    document.getElementById("pLogo");
 
- const result =
-   await postData(payload);
+  if (
+    logoInput.files &&
+    logoInput.files.length
+  ) {
 
+    document.getElementById("logoStatus")
+      .textContent =
+      "Logo processing...";
 
- if(!result.ok){
+    try {
 
-   alert(
-     result.error ||
-     "Profile save failed"
-   );
+      const base64 =
+        await compressImage(
+          logoInput.files[0]
+        );
 
-   return;
- }
+      document.getElementById("logoStatus")
+        .textContent =
+        "Logo uploading...";
 
+      const logoResult =
+        await postData({
 
- closeProfile();
+          action: "saveLogo",
 
- await loadDashboard();
+          User_ID:
+            user.User_ID,
 
- showNotice(
-   "Profile saved successfully."
- );
+          base64:
+            base64
+        });
 
+      if (!logoResult.ok) {
+
+        alert(
+          logoResult.error ||
+          "Logo upload failed"
+        );
+
+        return;
+      }
+
+      document.getElementById("logoStatus")
+        .textContent =
+        "Logo saved successfully.";
+
+    } catch(error) {
+
+      console.error(error);
+
+      alert("Logo upload failed.");
+      return;
+    }
+  }
+
+  closeProfile();
+
+  await loadDashboard();
+
+  showNotice(
+    "Profile saved successfully."
+  );
 }
 
 
@@ -1872,9 +1932,10 @@ function showNotice(message){
 
 function logout(){
 
- location.href =
-   "index.html";
+  sessionStorage.removeItem("digitalShopUser");
 
+  location.href =
+    "index.html?logout=1";
 }
 
 
