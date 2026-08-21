@@ -1682,43 +1682,6 @@ function productDashboardCard(
 
 }
 
-// ==========================================
-// THEMES
-// ==========================================
-
-const dashboardThemes = [
-
-  {
-    id: "T01",
-    name: "Luxury Black"
-  },
-
-  {
-    id: "T02",
-    name: "Premium Gold"
-  },
-
-  {
-    id: "T03",
-    name: "Royal Blue"
-  },
-
-  {
-    id: "T04",
-    name: "Elegant White"
-  },
-
-  {
-    id: "T05",
-    name: "Modern Green"
-  },
-
-  {
-    id: "T06",
-    name: "Classic Red"
-  }
-
-];
 
 // ==========================================
 // PROFILE EDITOR
@@ -1945,9 +1908,11 @@ function openProfileEditor() {
         )}
 
 
-        ${themeSelect(
-  user.Theme_ID
-)}
+        ${profileInput(
+          "Theme_ID",
+          "Theme ID",
+          user.Theme_ID
+        )}
 
 
       </div>
@@ -2025,66 +1990,6 @@ function profileInput(
           font-size:15px;
         "
       >
-
-    </label>
-
-  `;
-
-}
-
-function themeSelect(
-  value
-) {
-
-  return `
-
-    <label style="
-      display:block;
-      margin-top:14px;
-      font-weight:600;
-    ">
-
-      Theme
-
-      <select
-        id="profile_Theme_ID"
-        style="
-          display:block;
-          width:100%;
-          box-sizing:border-box;
-          padding:12px;
-          margin-top:6px;
-          border:1px solid #ddd;
-          border-radius:10px;
-          font-size:15px;
-          background:#fff;
-        "
-      >
-
-        ${dashboardThemes
-          .map(
-            theme => `
-
-              <option
-                value="${esc(theme.id)}"
-                ${
-                  String(value || "")
-                    .toUpperCase() ===
-                  String(theme.id)
-                    .toUpperCase()
-                    ? "selected"
-                    : ""
-                }
-              >
-                ${esc(theme.name)}
-                (${esc(theme.id)})
-              </option>
-
-            `
-          )
-          .join("")}
-
-      </select>
 
     </label>
 
@@ -2277,480 +2182,178 @@ async function uploadLogo() {
     fileInput.files[0];
 
 
- message.style.color =
-  "#555";
-
-message.textContent =
-  "Processing image...";
-
-
-try {
-
-  const processed =
-    await processImage(
-      file,
-      100,
-      800
-    );
-
-
-  message.textContent =
-    "Uploading logo...";
-
-
-  const payload = {
-
-    action:
-      "saveLogo",
-
-    User_ID:
-      dashboardData.user.User_ID,
-
-    base64:
-      processed.base64
-
-  };
-
-
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method:"POST",
-
-        headers:{
-          "Content-Type":
-            "text/plain;charset=utf-8"
-        },
-
-        body:
-          JSON.stringify(
-            payload
-          )
-      }
-    );
-
-
-  const result =
-    await response.json();
-
-
-  if (!result.ok) {
+  if (
+    file.size >
+    100 * 1024
+  ) {
 
     message.style.color =
       "#c00";
 
     message.textContent =
-      result.error ||
-      "Logo upload failed";
+      "Logo must be 100 KB or smaller";
 
     return;
   }
 
 
   message.style.color =
-    "green";
+    "#555";
 
   message.textContent =
-    "Logo uploaded successfully";
+    "Uploading logo...";
 
 
-  dashboardData.user.Logo =
-    result.imageUrl;
+  try {
+
+    const base64 =
+      await fileToBase64(
+        file
+      );
 
 
-  const preview =
-    document.getElementById(
-      "logoPreview"
-    );
+    const payload = {
+
+      action:
+        "saveLogo",
+
+      User_ID:
+        dashboardData.user.User_ID,
+
+      base64:
+        base64
+
+    };
 
 
-  if (preview) {
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
 
-    if (
-      preview.tagName ===
-      "IMG"
-    ) {
+          headers:{
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
 
-      preview.src =
-        result.imageUrl;
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
 
-    } else {
 
-      preview.outerHTML = `
+    const result =
+      await response.json();
 
-        <img
-          id="logoPreview"
-          src="${esc(
-            result.imageUrl
-          )}"
-          style="
-            width:100px;
-            height:100px;
-            object-fit:cover;
-            border:1px solid #ddd;
-            border-radius:15px;
-          "
-        >
 
-      `;
+    if (!result.ok) {
+
+      message.style.color =
+        "#c00";
+
+      message.textContent =
+        result.error ||
+        "Logo upload failed";
+
+      return;
+    }
+
+
+    message.style.color =
+      "green";
+
+    message.textContent =
+      "Logo uploaded successfully";
+
+
+    dashboardData.user.Logo =
+      result.imageUrl;
+
+
+    const preview =
+      document.getElementById(
+        "logoPreview"
+      );
+
+
+    if (preview) {
+
+      if (
+        preview.tagName ===
+        "IMG"
+      ) {
+
+        preview.src =
+          result.imageUrl;
+
+      } else {
+
+        preview.outerHTML = `
+
+          <img
+            id="logoPreview"
+            src="${esc(
+              result.imageUrl
+            )}"
+            style="
+              width:100px;
+              height:100px;
+              object-fit:contain;
+              border:1px solid #ddd;
+              border-radius:15px;
+            "
+          >
+
+        `;
+
+      }
 
     }
 
+
+  } catch (error) {
+
+    console.error(error);
+
+    message.style.color =
+      "#c00";
+
+    message.textContent =
+      "Logo upload error";
+
   }
-
-
-} catch (error) {
-
-  console.error(error);
-
-  message.style.color =
-    "#c00";
-
-  message.textContent =
-    error.message ||
-    "Logo upload error";
 
 }
 
 
-// ==========================================
-// IMAGE PROCESSOR
-// ANY IMAGE -> SQUARE -> COMPRESSED -> BASE64
-// ==========================================
-
-function processImage(
-  file,
-  maxKB = 100,
-  maxSize = 800
+function fileToBase64(
+  file
 ) {
 
   return new Promise(
-    (resolve, reject) => {
-
-      if (!file || !file.type.startsWith("image/")) {
-
-        reject(
-          new Error("Please select a valid image")
-        );
-
-        return;
-      }
-
+    (
+      resolve,
+      reject
+    ) => {
 
       const reader =
         new FileReader();
 
 
-      reader.onload = function () {
+      reader.onload = () => {
 
-        const img =
-          new Image();
+        const result =
+          String(
+            reader.result
+          );
 
 
-        img.onload = function () {
-
-          try {
-
-            // --------------------------------
-            // SQUARE CROP
-            // --------------------------------
-
-            const side =
-              Math.min(
-                img.naturalWidth,
-                img.naturalHeight
-              );
-
-
-            const sx =
-              (img.naturalWidth - side) / 2;
-
-            const sy =
-              (img.naturalHeight - side) / 2;
-
-
-            // --------------------------------
-            // LIMIT SIZE
-            // --------------------------------
-
-            const outputSize =
-              Math.min(
-                maxSize,
-                side
-              );
-
-
-            const canvas =
-              document.createElement(
-                "canvas"
-              );
-
-
-            canvas.width =
-              outputSize;
-
-            canvas.height =
-              outputSize;
-
-
-            const ctx =
-              canvas.getContext(
-                "2d"
-              );
-
-
-            // White background
-            // useful for JPG logo/product
-
-            ctx.fillStyle =
-              "#ffffff";
-
-            ctx.fillRect(
-              0,
-              0,
-              outputSize,
-              outputSize
-            );
-
-
-            ctx.imageSmoothingEnabled =
-              true;
-
-            ctx.imageSmoothingQuality =
-              "high";
-
-
-            // --------------------------------
-            // DRAW SQUARE IMAGE
-            // --------------------------------
-
-            ctx.drawImage(
-              img,
-              sx,
-              sy,
-              side,
-              side,
-              0,
-              0,
-              outputSize,
-              outputSize
-            );
-
-
-            // --------------------------------
-            // COMPRESS TO <= maxKB
-            // --------------------------------
-
-            let quality =
-              0.90;
-
-
-            function makeBlob() {
-
-              canvas.toBlob(
-                function (blob) {
-
-                  if (!blob) {
-
-                    reject(
-                      new Error(
-                        "Image processing failed"
-                      )
-                    );
-
-                    return;
-                  }
-
-
-                  // Target reached
-                  if (
-                    blob.size <=
-                    maxKB * 1024
-                  ) {
-
-                    const reader2 =
-                      new FileReader();
-
-
-                    reader2.onloadend =
-                      function () {
-
-                        const result =
-                          String(
-                            reader2.result
-                          );
-
-
-                        resolve({
-                          base64:
-                            result.split(",")[1],
-
-                          mime:
-                            "image/jpeg",
-
-                          size:
-                            blob.size,
-
-                          width:
-                            outputSize,
-
-                          height:
-                            outputSize
-                        });
-
-                      };
-
-
-                    reader2.readAsDataURL(
-                      blob
-                    );
-
-                    return;
-                  }
-
-
-                  // Lower quality
-                  quality -=
-                    0.08;
-
-
-                  if (
-                    quality >= 0.30
-                  ) {
-
-                    makeBlob();
-
-                  } else {
-
-                    // Quality reached minimum.
-                    // Reduce canvas size.
-
-                    const newSize =
-                      Math.floor(
-                        canvas.width * 0.80
-                      );
-
-
-                    if (
-                      newSize < 250
-                    ) {
-
-                      const reader3 =
-                        new FileReader();
-
-
-                      reader3.onloadend =
-                        function () {
-
-                          const result =
-                            String(
-                              reader3.result
-                            );
-
-
-                          resolve({
-                            base64:
-                              result.split(",")[1],
-
-                            mime:
-                              "image/jpeg",
-
-                            size:
-                              blob.size,
-
-                            width:
-                              canvas.width,
-
-                            height:
-                              canvas.height
-                          });
-
-                        };
-
-
-                      reader3.readAsDataURL(
-                        blob
-                      );
-
-                      return;
-                    }
-
-
-                    canvas.width =
-                      newSize;
-
-                    canvas.height =
-                      newSize;
-
-
-                    ctx.fillStyle =
-                      "#ffffff";
-
-                    ctx.fillRect(
-                      0,
-                      0,
-                      newSize,
-                      newSize
-                    );
-
-
-                    ctx.drawImage(
-                      img,
-                      sx,
-                      sy,
-                      side,
-                      side,
-                      0,
-                      0,
-                      newSize,
-                      newSize
-                    );
-
-
-                    quality =
-                      0.85;
-
-
-                    makeBlob();
-
-                  }
-
-                },
-
-                "image/jpeg",
-
-                quality
-              );
-
-            }
-
-
-            makeBlob();
-
-          } catch (error) {
-
-            reject(error);
-
-          }
-
-        };
-
-
-        img.onerror =
-          function () {
-
-            reject(
-              new Error(
-                "Unable to read image"
-              )
-            );
-
-          };
-
-
-        img.src =
-          reader.result;
+        resolve(
+          result.split(",")[1]
+        );
 
       };
 
@@ -2931,34 +2534,26 @@ function openProductEditor(
 
 
       <label style="
-  display:block;
-  margin-top:14px;
-  font-weight:600;
-">
+        display:block;
+        margin-top:14px;
+        font-weight:600;
+      ">
 
-  Product Image
+        Product Image
 
-  <input
-    id="productImageFile"
-    type="file"
-    accept="image/*"
-    capture="environment"
-    style="
-      width:100%;
-      margin-top:7px;
-    "
-  >
 
-  <div style="
-    color:#777;
-    font-size:12px;
-    margin-top:6px;
-    font-weight:400;
-  ">
-    Any image • Auto square • Auto compressed to 100 KB
-  </div>
+        <input
+          id="productImageFile"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          style="
+            width:100%;
+            margin-top:7px;
+          "
+        >
 
-</label>
+      </label>
 
 
       <button
@@ -3182,101 +2777,53 @@ async function saveProductChanges() {
 
 
       if (
-  fileInput &&
-  fileInput.files.length
-) {
+        file.size >
+        2 * 1024 * 1024
+      ) {
 
-  const file =
-    fileInput.files[0];
+        message.textContent =
+          "Product saved. Image is larger than 2 MB.";
 
+      } else {
 
-  try {
-
-    message.style.color =
-      "#555";
-
-    message.textContent =
-      "Processing product image...";
+        const base64 =
+          await fileToBase64(
+            file
+          );
 
 
-    const processed =
-      await processImage(
-        file,
-        100,
-        800
-      );
+        await fetch(
+          API_URL,
+          {
+            method:"POST",
 
+            headers:{
+              "Content-Type":
+                "text/plain;charset=utf-8"
+            },
 
-    message.textContent =
-      "Uploading product image...";
+            body:
+              JSON.stringify({
 
+                action:
+                  "saveProductImage",
 
-    const imageResponse =
-      await fetch(
-        API_URL,
-        {
-          method:"POST",
+                User_ID:
+                  dashboardData.user.User_ID,
 
-          headers:{
-            "Content-Type":
-              "text/plain;charset=utf-8"
-          },
+                Product_ID:
+                  result.Product_ID,
 
-          body:
-            JSON.stringify({
+                base64:
+                  base64
 
-              action:
-                "saveProductImage",
-
-              User_ID:
-                dashboardData.user.User_ID,
-
-              Product_ID:
-                result.Product_ID,
-
-              base64:
-                processed.base64
-
-            })
-
+              })
           }
         );
 
+      }
 
-    const imageResult =
-      await imageResponse.json();
-
-
-    if (!imageResult.ok) {
-
-      message.style.color =
-        "#c00";
-
-      message.textContent =
-        imageResult.error ||
-        "Product saved but image upload failed";
-
-      return;
     }
-
-
-  } catch (imageError) {
-
-    console.error(
-      imageError
-    );
-
-    message.style.color =
-      "#c00";
-
-    message.textContent =
-      "Product saved but image processing failed";
-
-    return;
-
-  }
-
-}
 
 
     message.style.color =
