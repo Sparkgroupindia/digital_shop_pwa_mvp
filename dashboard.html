@@ -1933,8 +1933,9 @@ function showNotice(message){
 function logout(){
 
   sessionStorage.removeItem("digitalShopUser");
+  localStorage.removeItem("digitalShopUser");
 
-  location.href =
+  window.location.href =
     "index.html?logout=1";
 }
 
