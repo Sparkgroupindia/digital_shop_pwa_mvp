@@ -28,9 +28,10 @@ function esc(x = "") {
 
 function getSlug() {
 
-  const params = new URLSearchParams(
-    window.location.search
-  );
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
 
   return params.get("slug") || "";
 }
