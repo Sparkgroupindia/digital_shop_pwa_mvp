@@ -386,10 +386,27 @@ async function loadDashboard(userId) {
 // DASHBOARD
 // ==========================================
 
+// ==========================================
+// RENDER DASHBOARD
+// ==========================================
+
 function renderDashboard() {
 
   const user =
     dashboardData.user;
+
+  const shopSlug =
+    String(user.Slug || "").trim();
+
+  const shopUrl =
+    window.location.origin +
+    window.location.pathname.replace(
+      "dashboard.html",
+      ""
+    ) +
+    "?slug=" +
+    encodeURIComponent(shopSlug);
+
 
   document.getElementById(
     "dashboardApp"
@@ -401,20 +418,21 @@ function renderDashboard() {
       font-family:system-ui;
     ">
 
+
+      <!-- HEADER -->
+
       <header style="
         background:#111;
         color:#fff;
-        padding:15px 20px;
+        padding:16px 20px;
         display:flex;
         align-items:center;
         justify-content:space-between;
         gap:15px;
-        position:sticky;
-        top:0;
-        z-index:10;
       ">
 
         <div>
+
           <div style="
             font-size:20px;
             font-weight:800;
@@ -428,7 +446,9 @@ function renderDashboard() {
           ">
             ${esc(user.Business_Name || "")}
           </div>
+
         </div>
+
 
         <button
           onclick="logoutUser()"
@@ -438,6 +458,7 @@ function renderDashboard() {
             color:#fff;
             padding:9px 14px;
             border-radius:10px;
+            cursor:pointer;
           "
         >
           Logout
@@ -446,16 +467,17 @@ function renderDashboard() {
       </header>
 
 
+
       <main style="
-        max-width:1100px;
+        max-width:1000px;
         margin:auto;
         padding:20px;
       ">
 
 
-        <!-- PROFILE -->
+        <!-- BUSINESS CARD -->
 
-        <section style="
+        <div style="
           background:#fff;
           padding:20px;
           border-radius:18px;
@@ -463,103 +485,181 @@ function renderDashboard() {
           box-shadow:0 5px 20px rgba(0,0,0,.06);
         ">
 
+
           <div style="
             display:flex;
-            justify-content:space-between;
             align-items:center;
             gap:15px;
             flex-wrap:wrap;
           ">
 
-            <div style="
-              display:flex;
-              align-items:center;
-              gap:15px;
-            ">
+
+            ${
+              user.Logo
+                ? `
+                  <img
+                    src="${esc(user.Logo)}"
+                    style="
+                      width:70px;
+                      height:70px;
+                      object-fit:contain;
+                      border-radius:12px;
+                      border:1px solid #eee;
+                    "
+                  >
+                `
+                : `
+                  <div style="
+                    width:70px;
+                    height:70px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    background:#eee;
+                    border-radius:12px;
+                    font-size:28px;
+                  ">
+                    🏪
+                  </div>
+                `
+            }
+
+
+            <div style="flex:1;">
+
+              <h2 style="
+                margin:0 0 5px;
+              ">
+                ${esc(user.Business_Name || "Business")}
+              </h2>
+
+              <div style="
+                color:#777;
+              ">
+                User ID:
+                <b>${esc(user.User_ID)}</b>
+              </div>
 
               ${
-                user.Logo
+                shopSlug
                   ? `
-                    <img
-                      src="${esc(user.Logo)}"
-                      style="
-                        width:75px;
-                        height:75px;
-                        object-fit:contain;
-                        border-radius:14px;
-                        border:1px solid #eee;
-                      "
-                    >
-                  `
-                  :
-                  `
                     <div style="
-                      width:75px;
-                      height:75px;
-                      display:flex;
-                      align-items:center;
-                      justify-content:center;
-                      background:#eee;
-                      border-radius:14px;
-                      font-size:28px;
+                      color:#777;
+                      font-size:13px;
+                      margin-top:4px;
                     ">
-                      🏪
+                      Shop:
+                      <b>${esc(shopSlug)}</b>
                     </div>
                   `
+                  : ""
               }
-
-              <div>
-
-                <h2 style="
-                  margin:0 0 5px;
-                ">
-                  ${esc(user.Business_Name || "Business")}
-                </h2>
-
-                <div style="color:#777;">
-                  User ID:
-                  <b>${esc(user.User_ID)}</b>
-                </div>
-
-              </div>
 
             </div>
 
-            <button
-              onclick="openProfileEditor()"
-              style="
-                border:0;
-                background:#111;
-                color:#fff;
-                padding:12px 18px;
-                border-radius:10px;
-                font-weight:700;
-              "
-            >
-              ✏️ Edit Profile
-            </button>
-
           </div>
 
-        </section>
 
 
-        <!-- STATS -->
+          <!-- SHOP BUTTONS -->
+
+          ${
+            shopSlug
+              ? `
+                <div style="
+                  display:grid;
+                  grid-template-columns:
+                    repeat(auto-fit,minmax(180px,1fr));
+                  gap:10px;
+                  margin-top:20px;
+                ">
+
+
+                  <button
+                    onclick="openMyShop()"
+                    style="
+                      border:0;
+                      padding:14px;
+                      border-radius:12px;
+                      background:#111;
+                      color:#fff;
+                      font-size:15px;
+                      font-weight:700;
+                      cursor:pointer;
+                    "
+                  >
+                    🛍️ Open Shop
+                  </button>
+
+
+                  <button
+                    onclick="copyShopLink()"
+                    style="
+                      border:1px solid #ddd;
+                      padding:14px;
+                      border-radius:12px;
+                      background:#fff;
+                      color:#111;
+                      font-size:15px;
+                      font-weight:700;
+                      cursor:pointer;
+                    "
+                  >
+                    🔗 Copy Shop Link
+                  </button>
+
+                </div>
+
+
+                <div
+                  id="shopLinkMessage"
+                  style="
+                    text-align:center;
+                    color:#16803c;
+                    font-size:13px;
+                    margin-top:10px;
+                    min-height:18px;
+                  "
+                ></div>
+              `
+              : `
+                <div style="
+                  margin-top:15px;
+                  padding:12px;
+                  background:#fff3cd;
+                  border-radius:10px;
+                  color:#856404;
+                  font-size:14px;
+                ">
+                  Shop link is not available because Slug is missing.
+                </div>
+              `
+          }
+
+        </div>
+
+
+
+        <!-- STAT CARDS -->
 
         <div style="
           display:grid;
           grid-template-columns:
             repeat(auto-fit,minmax(180px,1fr));
           gap:15px;
-          margin-bottom:20px;
         ">
+
 
           <div style="
             background:#fff;
             padding:20px;
             border-radius:16px;
           ">
-            <div style="color:#777;">
+
+            <div style="
+              color:#777;
+              font-size:14px;
+            ">
               Products
             </div>
 
@@ -569,7 +669,9 @@ function renderDashboard() {
             ">
               ${dashboardData.products.length}
             </div>
+
           </div>
+
 
 
           <div style="
@@ -577,7 +679,11 @@ function renderDashboard() {
             padding:20px;
             border-radius:16px;
           ">
-            <div style="color:#777;">
+
+            <div style="
+              color:#777;
+              font-size:14px;
+            ">
               Categories
             </div>
 
@@ -587,160 +693,26 @@ function renderDashboard() {
             ">
               ${dashboardData.categories.length}
             </div>
+
           </div>
+
 
         </div>
 
 
-        <!-- PRODUCTS -->
-
-        <section style="
-          background:#fff;
-          padding:20px;
-          border-radius:18px;
-          margin-bottom:20px;
-        ">
-
-          <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:10px;
-            flex-wrap:wrap;
-          ">
-
-            <h2 style="margin:0;">
-              Products
-            </h2>
-
-            <button
-              onclick="openProductEditor()"
-              style="
-                border:0;
-                background:#111;
-                color:#fff;
-                padding:11px 16px;
-                border-radius:10px;
-                font-weight:700;
-              "
-            >
-              + Add Product
-            </button>
-
-          </div>
-
-
-          <div style="
-            display:grid;
-            grid-template-columns:
-              repeat(auto-fit,minmax(180px,1fr));
-            gap:15px;
-            margin-top:20px;
-          ">
-
-            ${
-              dashboardData.products.length
-                ? dashboardData.products
-                    .map(productDashboardCard)
-                    .join("")
-                :
-                `
-                  <div style="
-                    color:#777;
-                    padding:20px 0;
-                  ">
-                    No products yet.
-                  </div>
-                `
-            }
-
-          </div>
-
-        </section>
-
-
-        <!-- CATEGORIES -->
-
-        <section style="
-          background:#fff;
-          padding:20px;
-          border-radius:18px;
-          margin-bottom:20px;
-        ">
-
-          <div style="
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:10px;
-          ">
-
-            <h2 style="margin:0;">
-              Categories
-            </h2>
-
-            <button
-              onclick="openCategoryEditor()"
-              style="
-                border:0;
-                background:#111;
-                color:#fff;
-                padding:10px 15px;
-                border-radius:10px;
-                font-weight:700;
-              "
-            >
-              + Add Category
-            </button>
-
-          </div>
-
-
-          <div style="
-            display:flex;
-            flex-wrap:wrap;
-            gap:10px;
-            margin-top:18px;
-          ">
-
-            ${
-              dashboardData.categories.length
-                ?
-                dashboardData.categories
-                  .map(c => `
-                    <div style="
-                      padding:10px 14px;
-                      background:#f1f1f1;
-                      border-radius:20px;
-                    ">
-                      ${esc(c.Name)}
-                    </div>
-                  `)
-                  .join("")
-                :
-                `
-                  <span style="color:#777;">
-                    No categories yet.
-                  </span>
-                `
-            }
-
-          </div>
-
-        </section>
-
 
         <!-- ACCOUNT -->
 
-        <section style="
+        <div style="
+          margin-top:20px;
           background:#fff;
           padding:20px;
           border-radius:18px;
         ">
 
-          <h2>
-            Account Details
-          </h2>
+          <h3>
+            Account
+          </h3>
 
           <p>
             <b>Business:</b>
@@ -758,18 +730,8 @@ function renderDashboard() {
           </p>
 
           <p>
-            <b>WhatsApp:</b>
-            ${esc(user.WhatsApp || "")}
-          </p>
-
-          <p>
             <b>Email:</b>
             ${esc(user.Email || "")}
-          </p>
-
-          <p>
-            <b>Address:</b>
-            ${esc(user.Address || "")}
           </p>
 
           <p>
@@ -777,12 +739,153 @@ function renderDashboard() {
             ${esc(user.Status || "")}
           </p>
 
-        </section>
+        </div>
+
 
       </main>
 
     </div>
   `;
+
+}
+
+
+// ==========================================
+// OPEN MY SHOP
+// ==========================================
+
+function openMyShop() {
+
+  const user =
+    dashboardData.user;
+
+  const slug =
+    String(user.Slug || "").trim();
+
+  if (!slug) {
+
+    alert(
+      "Shop slug not found."
+    );
+
+    return;
+  }
+
+  const shopUrl =
+    window.location.origin +
+    window.location.pathname.replace(
+      "dashboard.html",
+      ""
+    ) +
+    "?slug=" +
+    encodeURIComponent(slug);
+
+  window.open(
+    shopUrl,
+    "_blank"
+  );
+
+}
+
+
+// ==========================================
+// COPY SHOP LINK
+// ==========================================
+
+async function copyShopLink() {
+
+  const user =
+    dashboardData.user;
+
+  const slug =
+    String(user.Slug || "").trim();
+
+  if (!slug) {
+
+    alert(
+      "Shop slug not found."
+    );
+
+    return;
+  }
+
+  const shopUrl =
+    window.location.origin +
+    window.location.pathname.replace(
+      "dashboard.html",
+      ""
+    ) +
+    "?slug=" +
+    encodeURIComponent(slug);
+
+
+  try {
+
+    await navigator.clipboard.writeText(
+      shopUrl
+    );
+
+    const message =
+      document.getElementById(
+        "shopLinkMessage"
+      );
+
+    if (message) {
+
+      message.textContent =
+        "✓ Shop link copied";
+
+      setTimeout(() => {
+
+        message.textContent = "";
+
+      }, 2500);
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    // Fallback for some browsers
+
+    const textarea =
+      document.createElement("textarea");
+
+    textarea.value = shopUrl;
+
+    document.body.appendChild(
+      textarea
+    );
+
+    textarea.select();
+
+    document.execCommand(
+      "copy"
+    );
+
+    textarea.remove();
+
+    const message =
+      document.getElementById(
+        "shopLinkMessage"
+      );
+
+    if (message) {
+
+      message.textContent =
+        "✓ Shop link copied";
+
+      setTimeout(() => {
+
+        message.textContent = "";
+
+      }, 2500);
+
+    }
+
+  }
+
 }
 
 
