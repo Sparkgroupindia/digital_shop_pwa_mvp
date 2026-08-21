@@ -32,13 +32,7 @@ function getSlug() {
     window.location.search
   );
 
-  // ?slug=abc-jewellers
-  if (params.get("slug")) {
-    return params.get("slug");
-  }
-
-  // Local testing के लिए
-  return "abc-jewellers";
+  return params.get("slug") || "";
 }
 
 function imageFor(product) {
@@ -78,6 +72,17 @@ async function loadShop() {
 
   const slug = getSlug();
 
+  // =====================================
+  // NO SLUG = HOME / LOGIN PAGE
+  // =====================================
+
+  if (!slug) {
+
+    showHome();
+
+    return;
+  }
+
   document.getElementById("app").innerHTML = `
     <div style="
       min-height:100vh;
@@ -97,12 +102,19 @@ async function loadShop() {
       "?action=shop&slug=" +
       encodeURIComponent(slug);
 
-    const response = await fetch(url);
+    const response =
+      await fetch(url);
 
-    const result = await response.json();
+    const result =
+      await response.json();
 
     if (!result.ok) {
-      showError(result.error || "Business not found");
+
+      showError(
+        result.error ||
+        "Business not found"
+      );
+
       return;
     }
 
@@ -118,6 +130,54 @@ async function loadShop() {
       "Unable to load shop. Please check internet connection."
     );
   }
+}
+
+function showHome() {
+
+  document.body.className = "";
+
+  document.getElementById("app").innerHTML = `
+
+    <div style="
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:25px;
+      font-family:system-ui;
+      text-align:center;
+    ">
+
+      <div>
+
+        <h1>
+          Digital Shop
+        </h1>
+
+        <p style="color:#777">
+          Please login to manage your shop.
+        </p>
+
+        <a
+          href="login.html"
+          style="
+            display:inline-block;
+            margin-top:15px;
+            padding:12px 20px;
+            background:#111;
+            color:#fff;
+            text-decoration:none;
+            border-radius:10px;
+          "
+        >
+          Login
+        </a>
+
+      </div>
+
+    </div>
+
+  `;
 }
 
 function showError(message) {
