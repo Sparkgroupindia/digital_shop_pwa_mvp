@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1">
+
+<meta name="theme-color"
+      content="#111827">
+
+<title>Master Admin - Digital Shop</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,system-ui,sans-serif;
+  background:#f5f7fb;
+  color:#111827;
+}
+
+.top{
+  background:#111827;
+  color:#fff;
+  padding:16px;
+}
+
+.top-inner{
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+.brand{
+  font-size:20px;
+  font-weight:700;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 4px 20px rgba(0,0,0,.06);
+  margin-bottom:18px;
+}
+
+.login{
+  max-width:450px;
+  margin:60px auto;
+}
+
+input{
+  width:100%;
+  padding:13px;
+  border:1px solid #d1d5db;
+  border-radius:9px;
+  font-size:16px;
+}
+
+button{
+  border:0;
+  background:#111827;
+  color:#fff;
+  padding:11px 16px;
+  border-radius:9px;
+  cursor:pointer;
+}
+
+button:hover{
+  opacity:.9;
+}
+
+.search{
+  margin-bottom:15px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.stat{
+  background:#fff;
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 3px 15px rgba(0,0,0,.05);
+}
+
+.stat b{
+  display:block;
+  font-size:28px;
+  margin-top:5px;
+}
+
+.user{
+  background:#fff;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:12px;
+  box-shadow:0 3px 15px rgba(0,0,0,.05);
+}
+
+.user-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.business{
+  font-size:19px;
+  font-weight:700;
+}
+
+.muted{
+  color:#6b7280;
+  font-size:14px;
+  margin-top:4px;
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  background:#dcfce7;
+  color:#166534;
+}
+
+.badge.inactive{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.info{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:15px;
+}
+
+.info div{
+  background:#f9fafb;
+  padding:10px;
+  border-radius:8px;
+  font-size:13px;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+.shop{
+  background:#2563eb;
+}
+
+.dashboard{
+  background:#059669;
+}
+
+.error{
+  color:#b91c1c;
+  margin-top:10px;
+}
+
+#adminPanel{
+  display:none;
+}
+
+@media(max-width:700px){
+
+  .container{
+    padding:12px;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .info{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .user-head{
+    flex-direction:column;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="top">
+
+  <div class="top-inner">
+
+    <div class="brand">
+      Digital Shop — Master Admin
+    </div>
+
+  </div>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- LOGIN -->
+
+<div id="loginBox"
+     class="card login">
+
+  <h2>Master Admin Login</h2>
+
+  <p>
+    All users देखने के लिए admin password डालें.
+  </p>
+
+  <input
+    id="password"
+    type="password"
+    placeholder="Admin Password">
+
+  <br><br>
+
+  <button onclick="adminLogin()">
+    Login
+  </button>
+
+  <div id="loginError"
+       class="error">
+  </div>
+
+</div>
+
+
+<!-- ADMIN PANEL -->
+
+<div id="adminPanel">
+
+  <div class="stats">
+
+    <div class="stat">
+      Total Users
+      <b id="totalUsers">0</b>
+    </div>
+
+    <div class="stat">
+      Active Users
+      <b id="activeUsers">0</b>
+    </div>
+
+    <div class="stat">
+      Products
+      <b id="totalProducts">0</b>
+    </div>
+
+    <div class="stat">
+      Plans
+      <b id="totalPlans">0</b>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2>All Users</h2>
+
+    <input
+      class="search"
+      id="search"
+      placeholder="Search business, owner, mobile, user ID..."
+      oninput="renderUsers()">
+
+    <div id="users">
+      Loading users...
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwbU3NlHVOUCTpSYQoyO-WsqMkd3RyPFKeq1YPh1zlKF3BI_7UlDeIpYuK4TxE15B0uTQ/exec";
+
+
+let users = [];
+
+let adminPassword = "";
+
+
+function esc(value=""){
+
+  return String(value)
+    .replace(/[&<>"']/g,m=>({
+
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+
+    }[m]));
+
+}
+
+
+async function adminLogin(){
+
+  const password =
+    document.getElementById("password").value.trim();
+
+  if(!password){
+
+    document.getElementById("loginError")
+      .textContent =
+      "Password enter करें.";
+
+    return;
+  }
+
+  document.getElementById("loginError")
+    .textContent =
+    "Loading...";
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL +
+        "?action=adminUsers&password=" +
+        encodeURIComponent(password)
+      );
+
+    const result =
+      await response.json();
+
+    if(!result.ok){
+
+      document.getElementById("loginError")
+        .textContent =
+        result.error || "Login failed";
+
+      return;
+    }
+
+    adminPassword = password;
+
+    users = result.users || [];
+
+    document.getElementById("loginBox")
+      .style.display="none";
+
+    document.getElementById("adminPanel")
+      .style.display="block";
+
+    updateStats();
+
+    renderUsers();
+
+  }catch(error){
+
+    console.error(error);
+
+    document.getElementById("loginError")
+      .textContent =
+      "Server connection error.";
+
+  }
+
+}
+
+
+function updateStats(){
+
+  document.getElementById("totalUsers")
+    .textContent =
+    users.length;
+
+  document.getElementById("activeUsers")
+    .textContent =
+    users.filter(u =>
+      String(u.Status).toLowerCase()==="active"
+    ).length;
+
+  document.getElementById("totalProducts")
+    .textContent =
+    users.reduce(
+      (sum,u)=>sum+Number(u.Products||0),
+      0
+    );
+
+  document.getElementById("totalPlans")
+    .textContent =
+    new Set(
+      users
+        .map(u=>u.Plan_ID)
+        .filter(Boolean)
+    ).size;
+
+}
+
+
+function renderUsers(){
+
+  const box =
+    document.getElementById("users");
+
+  const search =
+    document.getElementById("search")
+      .value
+      .toLowerCase()
+      .trim();
+
+  const filtered =
+    users.filter(u=>{
+
+      const text =
+        [
+          u.User_ID,
+          u.Business_Name,
+          u.Owner_Name,
+          u.Mobile,
+          u.Email,
+          u.Plan_ID
+        ]
+        .join(" ")
+        .toLowerCase();
+
+      return text.includes(search);
+
+    });
+
+
+  if(!filtered.length){
+
+    box.innerHTML =
+      "<p>No users found.</p>";
+
+    return;
+  }
+
+
+  box.innerHTML =
+    filtered.map(u=>{
+
+      const status =
+        String(u.Status).toLowerCase();
+
+      const shopUrl =
+        location.origin +
+        location.pathname
+          .replace(
+            "admin.html",
+            "index.html"
+          ) +
+        "?slug=" +
+        encodeURIComponent(u.Slug || "");
+
+
+      const dashboardUrl =
+        location.origin +
+        location.pathname
+          .replace(
+            "admin.html",
+            "dashboard.html"
+          ) +
+        "?userId=" +
+        encodeURIComponent(u.User_ID);
+
+
+      return `
+
+        <div class="user">
+
+          <div class="user-head">
+
+            <div>
+
+              <div class="business">
+                ${esc(u.Business_Name)}
+              </div>
+
+              <div class="muted">
+                User ID: ${esc(u.User_ID)}
+              </div>
+
+              <div class="muted">
+                Owner: ${esc(u.Owner_Name)}
+              </div>
+
+            </div>
+
+            <div>
+
+              <span class="badge ${
+                status !== "active"
+                  ? "inactive"
+                  : ""
+              }">
+
+                ${esc(u.Status || "-")}
+
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="info">
+
+            <div>
+              <b>Mobile</b><br>
+              ${esc(u.Mobile || "-")}
+            </div>
+
+            <div>
+              <b>Plan</b><br>
+              ${esc(u.Plan_ID || "-")}
+            </div>
+
+            <div>
+              <b>Products</b><br>
+              ${esc(u.Products)}
+            </div>
+
+            <div>
+              <b>Theme</b><br>
+              ${esc(u.Theme_ID || "-")}
+            </div>
+
+          </div>
+
+
+          <div class="actions">
+
+            <button
+              class="shop"
+              onclick="window.open(
+                '${shopUrl}',
+                '_blank'
+              )">
+
+              Open Shop
+
+            </button>
+
+
+            <button
+              class="dashboard"
+              onclick="window.open(
+                '${dashboardUrl}',
+                '_blank'
+              )">
+
+              Open Dashboard
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+</script>
+
+</body>
+
+</html>
