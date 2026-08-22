@@ -414,13 +414,19 @@ function filterCat(category) {
 
 // =====================================
 // IMAGE VIEWER + ZOOM
+// PC WHEEL + MOBILE PINCH
 // =====================================
 
 let scale = 1;
 
+let startDistance = 0;
+let startScale = 1;
+
 function openViewer(src) {
 
   scale = 1;
+  startDistance = 0;
+  startScale = 1;
 
   const viewer =
     document.getElementById("viewer");
@@ -433,15 +439,37 @@ function openViewer(src) {
   image.style.transform =
     "scale(1)";
 
+  image.style.transformOrigin =
+    "center center";
+
   viewer.hidden = false;
 }
 
+
+// -------------------------------------
+// CLOSE
+// -------------------------------------
+
 function closeViewer() {
 
-  document.getElementById(
-    "viewer"
-  ).hidden = true;
+  const viewer =
+    document.getElementById("viewer");
+
+  viewer.hidden = true;
+
+  const image =
+    document.getElementById("viewerImg");
+
+  image.style.transform =
+    "scale(1)";
+
+  scale = 1;
 }
+
+
+// -------------------------------------
+// PC MOUSE WHEEL ZOOM
+// -------------------------------------
 
 document
   .getElementById("viewer")
@@ -451,17 +479,22 @@ document
 
       event.preventDefault();
 
+      if (event.deltaY < 0) {
+
+        scale += 0.20;
+
+      } else {
+
+        scale -= 0.20;
+
+      }
+
       scale =
         Math.max(
-          0.6,
+          1,
           Math.min(
-            4,
-            scale +
-              (
-                event.deltaY < 0
-                  ? 0.15
-                  : -0.15
-              )
+            5,
+            scale
           )
         );
 
@@ -471,15 +504,151 @@ document
           `scale(${scale})`;
 
     },
-    { passive: false }
+    {
+      passive:false
+    }
   );
+
+
+// -------------------------------------
+// MOBILE PINCH ZOOM
+// -------------------------------------
+
+function getTouchDistance(
+  touch1,
+  touch2
+) {
+
+  const dx =
+    touch1.clientX -
+    touch2.clientX;
+
+  const dy =
+    touch1.clientY -
+    touch2.clientY;
+
+  return Math.sqrt(
+    dx * dx +
+    dy * dy
+  );
+
+}
+
+
+document
+  .getElementById("viewer")
+  .addEventListener(
+    "touchstart",
+    event => {
+
+      if (
+        event.touches.length === 2
+      ) {
+
+        event.preventDefault();
+
+        startDistance =
+          getTouchDistance(
+            event.touches[0],
+            event.touches[1]
+          );
+
+        startScale =
+          scale;
+
+      }
+
+    },
+    {
+      passive:false
+    }
+  );
+
+
+document
+  .getElementById("viewer")
+  .addEventListener(
+    "touchmove",
+    event => {
+
+      if (
+        event.touches.length === 2 &&
+        startDistance > 0
+      ) {
+
+        event.preventDefault();
+
+        const currentDistance =
+          getTouchDistance(
+            event.touches[0],
+            event.touches[1]
+          );
+
+        const ratio =
+          currentDistance /
+          startDistance;
+
+        scale =
+          startScale *
+          ratio;
+
+        scale =
+          Math.max(
+            1,
+            Math.min(
+              5,
+              scale
+            )
+          );
+
+        document
+          .getElementById(
+            "viewerImg"
+          )
+          .style.transform =
+            `scale(${scale})`;
+
+      }
+
+    },
+    {
+      passive:false
+    }
+  );
+
+
+document
+  .getElementById("viewer")
+  .addEventListener(
+    "touchend",
+    event => {
+
+      if (
+        event.touches.length < 2
+      ) {
+
+        startDistance = 0;
+
+      }
+
+    }
+  );
+
+
+// -------------------------------------
+// ESC KEY
+// -------------------------------------
 
 document.addEventListener(
   "keydown",
   event => {
 
-    if (event.key === "Escape") {
+    if (
+      event.key === "Escape"
+    ) {
+
       closeViewer();
+
     }
 
   }
