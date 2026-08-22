@@ -1807,24 +1807,81 @@ function openProfileEditor() {
         <br>
 
 
-        <input
-          id="logoFile"
-          type="file"
-          accept="image/*"
-          capture="environment"
-          style="
-            margin-top:10px;
-          "
-        >
+        <div style="
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+">
+
+  <button
+    type="button"
+    onclick="document.getElementById('logoCameraFile').click()"
+    style="
+      padding:10px 14px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      background:#fff;
+      font-weight:600;
+    "
+  >
+    📷 Camera
+  </button>
+
+
+  <button
+    type="button"
+    onclick="document.getElementById('logoFile').click()"
+    style="
+      padding:10px 14px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      background:#fff;
+      font-weight:600;
+    "
+  >
+    📁 Choose File
+  </button>
+
+</div>
+
+
+<input
+  id="logoCameraFile"
+  type="file"
+  accept="image/*"
+  capture="environment"
+  style="display:none;"
+>
+
+
+<input
+  id="logoFile"
+  type="file"
+  accept="image/*"
+  style="display:none;"
+>
+
+
+<div
+  id="logoSelectedFile"
+  style="
+    margin-top:8px;
+    font-size:12px;
+    color:#777;
+  "
+>
+</div>
 
 
         <div style="
-          color:#777;
-          font-size:12px;
-          margin-top:5px;
-        ">
-          JPG recommended • Maximum 100 KB
-        </div>
+  color:#777;
+  font-size:12px;
+  margin-top:8px;
+">
+  JPG recommended • Any size accepted • Automatically converted to square & compressed below 100 KB
+</div>
 
 
         <button
@@ -1908,11 +1965,9 @@ function openProfileEditor() {
         )}
 
 
-        ${profileInput(
-          "Theme_ID",
-          "Theme ID",
-          user.Theme_ID
-        )}
+        ${themeSelect(
+  user.Theme_ID
+)}
 
 
       </div>
@@ -1990,6 +2045,111 @@ function profileInput(
           font-size:15px;
         "
       >
+
+    </label>
+
+  `;
+
+}
+
+// ==========================================
+// THEME DROPDOWN
+// ==========================================
+
+function themeSelect(
+  currentTheme
+) {
+
+  const themes = [
+
+    {
+      id:"T01",
+      name:"Luxury Black"
+    },
+
+    {
+      id:"T02",
+      name:"Silver Premium"
+    },
+
+    {
+      id:"T03",
+      name:"Royal Blue"
+    },
+
+    {
+      id:"T04",
+      name:"Minimal White"
+    },
+
+    {
+      id:"T05",
+      name:"Dark Gold"
+    },
+
+    {
+      id:"T06",
+      name:"Modern"
+    }
+
+  ];
+
+
+  const options =
+    themes
+      .map(
+        theme => `
+
+          <option
+            value="${theme.id}"
+            ${
+              String(
+                currentTheme || ""
+              ).toUpperCase() ===
+              theme.id
+
+                ? "selected"
+
+                : ""
+            }
+          >
+            ${theme.id} - ${theme.name}
+          </option>
+
+        `
+      )
+      .join("");
+
+
+  return `
+
+    <label style="
+      display:block;
+      margin-top:14px;
+      font-weight:600;
+    ">
+
+      Theme
+
+
+      <select
+        id="profile_Theme_ID"
+        style="
+          display:block;
+          width:100%;
+          box-sizing:border-box;
+          padding:12px;
+          margin-top:6px;
+          border:1px solid #ddd;
+          border-radius:10px;
+          font-size:15px;
+          background:#fff;
+        "
+      >
+
+        ${options}
+
+      </select>
 
     </label>
 
@@ -2152,9 +2312,14 @@ async function saveProfileChanges() {
 
 async function uploadLogo() {
 
-  const fileInput =
+  const normalInput =
     document.getElementById(
       "logoFile"
+    );
+
+  const cameraInput =
+    document.getElementById(
+      "logoCameraFile"
     );
 
   const message =
@@ -2162,11 +2327,33 @@ async function uploadLogo() {
       "logoMessage"
     );
 
+  const selectedText =
+    document.getElementById(
+      "logoSelectedFile"
+    );
 
-  if (
-    !fileInput ||
-    !fileInput.files.length
-  ) {
+
+  const file =
+    (
+      cameraInput &&
+      cameraInput.files &&
+      cameraInput.files.length
+    )
+      ? cameraInput.files[0]
+
+      :
+
+      (
+        normalInput &&
+        normalInput.files &&
+        normalInput.files.length
+      )
+        ? normalInput.files[0]
+
+        : null;
+
+
+  if (!file) {
 
     message.style.color =
       "#c00";
@@ -2178,38 +2365,25 @@ async function uploadLogo() {
   }
 
 
-  const file =
-    fileInput.files[0];
-
-
-  if (
-    file.size >
-    100 * 1024
-  ) {
-
-    message.style.color =
-      "#c00";
-
-    message.textContent =
-      "Logo must be 100 KB or smaller";
-
-    return;
-  }
-
-
   message.style.color =
     "#555";
 
   message.textContent =
-    "Uploading logo...";
+    "Processing logo...";
 
 
   try {
 
-    const base64 =
-      await fileToBase64(
-        file
+    // Logo = square but preserve full logo
+    const processed =
+      await processImage(
+        file,
+        "contain"
       );
+
+
+    message.textContent =
+      "Uploading logo...";
 
 
     const payload = {
@@ -2221,7 +2395,7 @@ async function uploadLogo() {
         dashboardData.user.User_ID,
 
       base64:
-        base64
+        processed.base64
 
     };
 
@@ -2267,6 +2441,21 @@ async function uploadLogo() {
 
     message.textContent =
       "Logo uploaded successfully";
+
+
+    if (selectedText) {
+
+      selectedText.textContent =
+        "Saved image: " +
+        Math.round(
+          processed.size / 1024
+        ) +
+        " KB • " +
+        processed.width +
+        " × " +
+        processed.height;
+
+    }
 
 
     dashboardData.user.Logo =
@@ -2322,48 +2511,329 @@ async function uploadLogo() {
       "#c00";
 
     message.textContent =
-      "Logo upload error";
+      error.message ||
+      "Logo processing failed";
 
   }
 
 }
 
 
-function fileToBase64(
-  file
+// ==========================================
+// IMAGE PROCESSOR
+// Square + Compress to <= 100 KB
+// ==========================================
+
+const MAX_IMAGE_BYTES = 100 * 1024;
+const MAX_IMAGE_SIZE = 1000;
+
+function processImage(
+  file,
+  mode = "cover"
 ) {
 
   return new Promise(
-    (
-      resolve,
-      reject
-    ) => {
+    (resolve, reject) => {
+
+      if (!file) {
+        reject(
+          new Error("No image selected")
+        );
+        return;
+      }
+
+      if (
+        !file.type ||
+        !file.type.startsWith("image/")
+      ) {
+        reject(
+          new Error("Please select an image file")
+        );
+        return;
+      }
 
       const reader =
         new FileReader();
 
+      reader.onload = function () {
 
-      reader.onload = () => {
+        const img =
+          new Image();
 
-        const result =
-          String(
-            reader.result
-          );
+        img.onload = async function () {
+
+          try {
+
+            let size =
+              MAX_IMAGE_SIZE;
+
+            let blob =
+              null;
+
+            while (size >= 300) {
+
+              const canvas =
+                document.createElement(
+                  "canvas"
+                );
+
+              canvas.width =
+                size;
+
+              canvas.height =
+                size;
+
+              const ctx =
+                canvas.getContext(
+                  "2d"
+                );
+
+              // White background
+              // This also handles transparent PNG logos
+              ctx.fillStyle =
+                "#ffffff";
+
+              ctx.fillRect(
+                0,
+                0,
+                size,
+                size
+              );
+
+              const sourceWidth =
+                img.naturalWidth ||
+                img.width;
+
+              const sourceHeight =
+                img.naturalHeight ||
+                img.height;
 
 
-        resolve(
-          result.split(",")[1]
-        );
+              let drawWidth;
+              let drawHeight;
+              let offsetX;
+              let offsetY;
+
+
+              // --------------------------------
+              // LOGO = CONTAIN
+              // PRODUCT = COVER
+              // --------------------------------
+
+              if (
+                mode === "contain"
+              ) {
+
+                const scale =
+                  Math.min(
+                    size / sourceWidth,
+                    size / sourceHeight
+                  );
+
+                drawWidth =
+                  sourceWidth * scale;
+
+                drawHeight =
+                  sourceHeight * scale;
+
+                offsetX =
+                  (size - drawWidth) / 2;
+
+                offsetY =
+                  (size - drawHeight) / 2;
+
+                ctx.drawImage(
+                  img,
+                  offsetX,
+                  offsetY,
+                  drawWidth,
+                  drawHeight
+                );
+
+              } else {
+
+                const scale =
+                  Math.max(
+                    size / sourceWidth,
+                    size / sourceHeight
+                  );
+
+                drawWidth =
+                  sourceWidth * scale;
+
+                drawHeight =
+                  sourceHeight * scale;
+
+                offsetX =
+                  (size - drawWidth) / 2;
+
+                offsetY =
+                  (size - drawHeight) / 2;
+
+                ctx.drawImage(
+                  img,
+                  offsetX,
+                  offsetY,
+                  drawWidth,
+                  drawHeight
+                );
+
+              }
+
+
+              // Try quality from high to low
+              for (
+                let quality = 0.90;
+                quality >= 0.25;
+                quality -= 0.05
+              ) {
+
+                blob =
+                  await new Promise(
+                    resolveBlob => {
+
+                      canvas.toBlob(
+                        resolveBlob,
+                        "image/jpeg",
+                        quality
+                      );
+
+                    }
+                  );
+
+
+                if (
+                  blob &&
+                  blob.size <=
+                  MAX_IMAGE_BYTES
+                ) {
+
+                  const base64 =
+                    await blobToBase64(
+                      blob
+                    );
+
+                  resolve({
+                    base64:
+                      base64,
+
+                    size:
+                      blob.size,
+
+                    width:
+                      size,
+
+                    height:
+                      size,
+
+                    mimeType:
+                      "image/jpeg"
+                  });
+
+                  return;
+
+                }
+
+              }
+
+              // Still larger than 100 KB
+              // Reduce square size and try again
+              size =
+                Math.floor(
+                  size * 0.80
+                );
+
+            }
+
+
+            reject(
+              new Error(
+                "Unable to compress image below 100 KB"
+              )
+            );
+
+          } catch (error) {
+
+            reject(error);
+
+          }
+
+        };
+
+
+        img.onerror =
+          function () {
+
+            reject(
+              new Error(
+                "Unable to read image"
+              )
+            );
+
+          };
+
+
+        img.src =
+          reader.result;
 
       };
 
 
       reader.onerror =
-        reject;
+        function () {
+
+          reject(
+            new Error(
+              "Unable to read selected file"
+            )
+          );
+
+        };
 
 
       reader.readAsDataURL(
         file
+      );
+
+    }
+  );
+
+}
+
+
+// ==========================================
+// BLOB TO BASE64
+// ==========================================
+
+function blobToBase64(
+  blob
+) {
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const reader =
+        new FileReader();
+
+      reader.onload =
+        function () {
+
+          const result =
+            String(
+              reader.result
+            );
+
+          resolve(
+            result.split(",")[1]
+          );
+
+        };
+
+      reader.onerror =
+        reject;
+
+      reader.readAsDataURL(
+        blob
       );
 
     }
@@ -2542,16 +3012,80 @@ function openProductEditor(
         Product Image
 
 
-        <input
-          id="productImageFile"
-          type="file"
-          accept="image/*"
-          capture="environment"
-          style="
-            width:100%;
-            margin-top:7px;
-          "
-        >
+        <div style="
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:7px;
+">
+
+  <button
+    type="button"
+    onclick="document.getElementById('productCameraFile').click()"
+    style="
+      padding:10px 14px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      background:#fff;
+      font-weight:600;
+    "
+  >
+    📷 Camera
+  </button>
+
+
+  <button
+    type="button"
+    onclick="document.getElementById('productImageFile').click()"
+    style="
+      padding:10px 14px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      background:#fff;
+      font-weight:600;
+    "
+  >
+    📁 Choose File
+  </button>
+
+</div>
+
+
+<input
+  id="productCameraFile"
+  type="file"
+  accept="image/*"
+  capture="environment"
+  style="display:none;"
+>
+
+
+<input
+  id="productImageFile"
+  type="file"
+  accept="image/*"
+  style="display:none;"
+>
+
+
+<div
+  id="productSelectedFile"
+  style="
+    margin-top:8px;
+    color:#777;
+    font-size:12px;
+  "
+>
+</div>
+
+
+<div style="
+  margin-top:6px;
+  color:#777;
+  font-size:12px;
+">
+  Any size accepted • Automatically converted to square & compressed below 100 KB
+</div>
 
       </label>
 
@@ -2762,98 +3296,141 @@ async function saveProductChanges() {
 
 
     const fileInput =
-      document.getElementById(
-        "productImageFile"
+  document.getElementById(
+    "productImageFile"
+  );
+
+const cameraInput =
+  document.getElementById(
+    "productCameraFile"
+  );
+
+const selectedText =
+  document.getElementById(
+    "productSelectedFile"
+  );
+
+
+const file =
+  (
+    cameraInput &&
+    cameraInput.files &&
+    cameraInput.files.length
+  )
+    ? cameraInput.files[0]
+
+    :
+
+    (
+      fileInput &&
+      fileInput.files &&
+      fileInput.files.length
+    )
+      ? fileInput.files[0]
+
+      : null;
+
+
+if (file) {
+
+  try {
+
+    message.style.color =
+      "#555";
+
+    message.textContent =
+      "Processing product image...";
+
+
+    // Product = square crop
+    const processed =
+      await processImage(
+        file,
+        "cover"
       );
 
 
-    if (
-      fileInput &&
-      fileInput.files.length
-    ) {
-
-      const file =
-        fileInput.files[0];
+    message.textContent =
+      "Uploading product image...";
 
 
-      if (
-        file.size >
-        2 * 1024 * 1024
-      ) {
+    const imageResponse =
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
 
-        message.textContent =
-          "Product saved. Image is larger than 2 MB.";
+          headers:{
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
 
-      } else {
+          body:
+            JSON.stringify({
 
-        const base64 =
-          await fileToBase64(
-            file
-          );
+              action:
+                "saveProductImage",
+
+              User_ID:
+                dashboardData.user.User_ID,
+
+              Product_ID:
+                result.Product_ID,
+
+              base64:
+                processed.base64
+
+            })
+        }
+      );
 
 
-        await fetch(
-          API_URL,
-          {
-            method:"POST",
+    const imageResult =
+      await imageResponse.json();
 
-            headers:{
-              "Content-Type":
-                "text/plain;charset=utf-8"
-            },
 
-            body:
-              JSON.stringify({
+    if (!imageResult.ok) {
 
-                action:
-                  "saveProductImage",
+      message.style.color =
+        "#c00";
 
-                User_ID:
-                  dashboardData.user.User_ID,
+      message.textContent =
+        imageResult.error ||
+        "Product image upload failed";
 
-                Product_ID:
-                  result.Product_ID,
+      return;
+    }
 
-                base64:
-                  base64
 
-              })
-          }
-        );
+    if (selectedText) {
 
-      }
+      selectedText.textContent =
+        "Saved image: " +
+        Math.round(
+          processed.size / 1024
+        ) +
+        " KB • " +
+        processed.width +
+        " × " +
+        processed.height;
 
     }
 
 
-    message.style.color =
-      "green";
+  } catch (imageError) {
 
-    message.textContent =
-      "Product saved successfully";
-
-
-    await loadDashboard(
-      dashboardData.user.User_ID
+    console.error(
+      imageError
     );
-
-
-    setTimeout(
-      closeProductEditor,
-      700
-    );
-
-
-  } catch (error) {
-
-    console.error(error);
 
     message.style.color =
       "#c00";
 
     message.textContent =
-      "Connection error";
+      imageError.message ||
+      "Product image processing failed";
 
+    return;
   }
 
 }
