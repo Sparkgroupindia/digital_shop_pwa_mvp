@@ -3191,10 +3191,54 @@ function closeProductEditor() {
 
 async function saveProductChanges() {
 
-  const name =
+  const nameElement =
     document.getElementById(
       "productName"
-    ).value.trim();
+    );
+
+  const categoryElement =
+    document.getElementById(
+      "productCategory"
+    );
+
+  const codeElement =
+    document.getElementById(
+      "productCode"
+    );
+
+  const priceElement =
+    document.getElementById(
+      "productPrice"
+    );
+
+  const descriptionElement =
+    document.getElementById(
+      "productDescription"
+    );
+
+  const message =
+    document.getElementById(
+      "productMessage"
+    );
+
+
+  // ------------------------------------------
+  // BASIC CHECK
+  // ------------------------------------------
+
+  if (!nameElement) {
+
+    alert(
+      "Product form not found"
+    );
+
+    return;
+
+  }
+
+
+  const name =
+    nameElement.value.trim();
 
 
   if (!name) {
@@ -3204,18 +3248,24 @@ async function saveProductChanges() {
     );
 
     return;
+
   }
 
 
-  const message =
-    document.getElementById(
-      "productMessage"
-    );
+  if (message) {
+
+    message.style.color =
+      "#555";
+
+    message.textContent =
+      "Saving product...";
+
+  }
 
 
-  message.textContent =
-    "Saving product...";
-
+  // ------------------------------------------
+  // PRODUCT DATA
+  // ------------------------------------------
 
   const payload = {
 
@@ -3232,24 +3282,24 @@ async function saveProductChanges() {
       name,
 
     Category:
-      document.getElementById(
-        "productCategory"
-      ).value,
+      categoryElement
+        ? categoryElement.value
+        : "",
 
     Code:
-      document.getElementById(
-        "productCode"
-      ).value.trim(),
+      codeElement
+        ? codeElement.value.trim()
+        : "",
 
     Price:
-      document.getElementById(
-        "productPrice"
-      ).value.trim(),
+      priceElement
+        ? priceElement.value.trim()
+        : "",
 
     Description:
-      document.getElementById(
-        "productDescription"
-      ).value.trim(),
+      descriptionElement
+        ? descriptionElement.value.trim()
+        : "",
 
     Status:
       "active"
@@ -3259,13 +3309,18 @@ async function saveProductChanges() {
 
   try {
 
+    // ----------------------------------------
+    // SAVE PRODUCT DATA
+    // ----------------------------------------
+
     const response =
       await fetch(
         API_URL,
         {
-          method:"POST",
+          method:
+            "POST",
 
-          headers:{
+          headers: {
             "Content-Type":
               "text/plain;charset=utf-8"
           },
@@ -3284,153 +3339,294 @@ async function saveProductChanges() {
 
     if (!result.ok) {
 
-      message.style.color =
-        "#c00";
+      if (message) {
 
-      message.textContent =
-        result.error ||
-        "Product save failed";
+        message.style.color =
+          "#c00";
+
+        message.textContent =
+          result.error ||
+          "Product save failed";
+
+      }
 
       return;
+
     }
 
+
+    // ----------------------------------------
+    // PRODUCT ID
+    // ----------------------------------------
+
+    const savedProductId =
+      result.Product_ID ||
+      editingProductId;
+
+
+    if (!savedProductId) {
+
+      if (message) {
+
+        message.style.color =
+          "#c00";
+
+        message.textContent =
+          "Product saved but Product ID was not returned.";
+
+      }
+
+      return;
+
+    }
+
+
+    // ----------------------------------------
+    // GET SELECTED IMAGE
+    // ----------------------------------------
 
     const fileInput =
-  document.getElementById(
-    "productImageFile"
-  );
-
-const cameraInput =
-  document.getElementById(
-    "productCameraFile"
-  );
-
-const selectedText =
-  document.getElementById(
-    "productSelectedFile"
-  );
-
-
-const file =
-  (
-    cameraInput &&
-    cameraInput.files &&
-    cameraInput.files.length
-  )
-    ? cameraInput.files[0]
-
-    :
-
-    (
-      fileInput &&
-      fileInput.files &&
-      fileInput.files.length
-    )
-      ? fileInput.files[0]
-
-      : null;
-
-
-if (file) {
-
-  try {
-
-    message.style.color =
-      "#555";
-
-    message.textContent =
-      "Processing product image...";
-
-
-    // Product = square crop
-    const processed =
-      await processImage(
-        file,
-        "cover"
+      document.getElementById(
+        "productImageFile"
       );
 
 
-    message.textContent =
-      "Uploading product image...";
+    const cameraInput =
+      document.getElementById(
+        "productCameraFile"
+      );
 
 
-    const imageResponse =
-      await fetch(
-        API_URL,
-        {
-          method:"POST",
+    const selectedText =
+      document.getElementById(
+        "productSelectedFile"
+      );
 
-          headers:{
-            "Content-Type":
-              "text/plain;charset=utf-8"
-          },
 
-          body:
-            JSON.stringify({
+    const file =
 
-              action:
-                "saveProductImage",
+      (
+        cameraInput &&
+        cameraInput.files &&
+        cameraInput.files.length
+      )
 
-              User_ID:
-                dashboardData.user.User_ID,
+        ?
 
-              Product_ID:
-                result.Product_ID,
+        cameraInput.files[0]
 
-              base64:
-                processed.base64
+        :
 
-            })
+        (
+          fileInput &&
+          fileInput.files &&
+          fileInput.files.length
+        )
+
+          ?
+
+          fileInput.files[0]
+
+          :
+
+          null;
+
+
+    // ----------------------------------------
+    // IMAGE UPLOAD ONLY IF SELECTED
+    // ----------------------------------------
+
+    if (file) {
+
+      try {
+
+        if (message) {
+
+          message.style.color =
+            "#555";
+
+          message.textContent =
+            "Processing product image...";
+
         }
-      );
 
 
-    const imageResult =
-      await imageResponse.json();
+        // ------------------------------------
+        // PRODUCT IMAGE
+        // Square + <= 100 KB
+        // ------------------------------------
+
+        const processed =
+          await processImage(
+            file,
+            "cover"
+          );
 
 
-    if (!imageResult.ok) {
+        if (message) {
+
+          message.textContent =
+            "Uploading product image...";
+
+        }
+
+
+        // ------------------------------------
+        // UPLOAD IMAGE TO DRIVE
+        // ------------------------------------
+
+        const imageResponse =
+          await fetch(
+            API_URL,
+            {
+              method:
+                "POST",
+
+              headers: {
+                "Content-Type":
+                  "text/plain;charset=utf-8"
+              },
+
+              body:
+                JSON.stringify({
+
+                  action:
+                    "saveProductImage",
+
+                  User_ID:
+                    dashboardData.user.User_ID,
+
+                  Product_ID:
+                    savedProductId,
+
+                  base64:
+                    processed.base64
+
+                })
+            }
+          );
+
+
+        const imageResult =
+          await imageResponse.json();
+
+
+        if (!imageResult.ok) {
+
+          if (message) {
+
+            message.style.color =
+              "#c00";
+
+            message.textContent =
+              imageResult.error ||
+              "Product image upload failed";
+
+          }
+
+          return;
+
+        }
+
+
+        // ------------------------------------
+        // SHOW IMAGE INFORMATION
+        // ------------------------------------
+
+        if (selectedText) {
+
+          selectedText.textContent =
+            "Saved image: " +
+            Math.round(
+              processed.size / 1024
+            ) +
+            " KB • " +
+            processed.width +
+            " × " +
+            processed.height;
+
+        }
+
+      } catch (imageError) {
+
+        console.error(
+          "Product image error:",
+          imageError
+        );
+
+
+        if (message) {
+
+          message.style.color =
+            "#c00";
+
+          message.textContent =
+            imageError.message ||
+            "Product image processing failed";
+
+        }
+
+        return;
+
+      }
+
+    }
+
+
+    // ----------------------------------------
+    // SUCCESS
+    // ----------------------------------------
+
+    if (message) {
+
+      message.style.color =
+        "green";
+
+      message.textContent =
+        file
+          ? "Product and image saved successfully"
+          : "Product saved successfully";
+
+    }
+
+
+    // ----------------------------------------
+    // CLOSE EDITOR
+    // ----------------------------------------
+
+    setTimeout(
+      async function () {
+
+        closeProductEditor();
+
+        await loadDashboard(
+          dashboardData.user.User_ID
+        );
+
+      },
+      500
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Save product error:",
+      error
+    );
+
+
+    if (message) {
 
       message.style.color =
         "#c00";
 
       message.textContent =
-        imageResult.error ||
-        "Product image upload failed";
-
-      return;
-    }
-
-
-    if (selectedText) {
-
-      selectedText.textContent =
-        "Saved image: " +
-        Math.round(
-          processed.size / 1024
-        ) +
-        " KB • " +
-        processed.width +
-        " × " +
-        processed.height;
+        error.message ||
+        "Connection error while saving product";
 
     }
 
-
-  } catch (imageError) {
-
-    console.error(
-      imageError
-    );
-
-    message.style.color =
-      "#c00";
-
-    message.textContent =
-      imageError.message ||
-      "Product image processing failed";
-
-    return;
   }
 
 }
