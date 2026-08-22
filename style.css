@@ -252,7 +252,13 @@ button{font:inherit}.app{max-width:1180px;margin:auto;padding:0 18px}
 .viewer img{
   user-select:none;
   -webkit-user-drag:none;
+  -webkit-user-select:none;
+  touch-action:none;
   cursor:zoom-in;
+  max-width:92vw;
+  max-height:88vh;
+  object-fit:contain;
+  will-change:transform;
 }
 
 .viewer .close{
