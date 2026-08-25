@@ -2056,6 +2056,10 @@ function profileInput(
 // THEME DROPDOWN
 // ==========================================
 
+// ==========================================
+// THEME DROPDOWN
+// ==========================================
+
 function themeSelect(
   currentTheme
 ) {
@@ -2089,7 +2093,67 @@ function themeSelect(
 
     {
       id:"T06",
-      name:"Modern"
+      name:"Modern Purple"
+    },
+
+    {
+      id:"T07",
+      name:"Emerald Green"
+    },
+
+    {
+      id:"T08",
+      name:"Ruby Red"
+    },
+
+    {
+      id:"T09",
+      name:"Ocean Blue"
+    },
+
+    {
+      id:"T10",
+      name:"Rose Pink"
+    },
+
+    {
+      id:"T11",
+      name:"Sunset Orange"
+    },
+
+    {
+      id:"T12",
+      name:"Teal"
+    },
+
+    {
+      id:"T13",
+      name:"Mocha Brown"
+    },
+
+    {
+      id:"T14",
+      name:"Midnight Navy"
+    },
+
+    {
+      id:"T15",
+      name:"Blush"
+    },
+
+    {
+      id:"T16",
+      name:"Sapphire"
+    },
+
+    {
+      id:"T17",
+      name:"Burgundy"
+    },
+
+    {
+      id:"T18",
+      name:"Forest Green"
     }
 
   ];
@@ -2107,9 +2171,7 @@ function themeSelect(
                 currentTheme || ""
               ).toUpperCase() ===
               theme.id
-
                 ? "selected"
-
                 : ""
             }
           >
@@ -2130,7 +2192,6 @@ function themeSelect(
     ">
 
       Theme
-
 
       <select
         id="profile_Theme_ID"
@@ -2154,7 +2215,6 @@ function themeSelect(
     </label>
 
   `;
-
 }
 
 
