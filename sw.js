@@ -1,4 +1,4 @@
-const CACHE = "digital-shop-v2";
+const CACHE = "digital-shop-v3";
 
 const ASSETS = [
   "./",
