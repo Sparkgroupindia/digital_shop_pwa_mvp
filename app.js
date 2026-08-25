@@ -7,7 +7,19 @@ const themes = {
   T03: ["theme-royal", "Royal Blue"],
   T04: ["theme-minimal", "Minimal White"],
   T05: ["theme-gold", "Dark Gold"],
-  T06: ["theme-modern", "Modern"]
+  T06: ["theme-modern", "Modern Purple"],
+  T07: ["theme-emerald", "Emerald Green"],
+  T08: ["theme-ruby", "Ruby Red"],
+  T09: ["theme-ocean", "Ocean Blue"],
+  T10: ["theme-rose", "Rose Pink"],
+  T11: ["theme-sunset", "Sunset Orange"],
+  T12: ["theme-teal", "Teal"],
+  T13: ["theme-mocha", "Mocha Brown"],
+  T14: ["theme-midnight", "Midnight Navy"],
+  T15: ["theme-blush", "Blush"],
+  T16: ["theme-sapphire", "Sapphire"],
+  T17: ["theme-burgundy", "Burgundy"],
+  T18: ["theme-forest", "Forest Green"]
 };
 
 let data = {
@@ -27,12 +39,7 @@ function esc(x = "") {
 }
 
 function getSlug() {
-
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
+  const params = new URLSearchParams(window.location.search);
   return params.get("slug") || "";
 }
 
@@ -53,11 +60,8 @@ function imageFor(product) {
       <svg xmlns="http://www.w3.org/2000/svg"
            width="800"
            height="800">
-        <rect width="100%"
-              height="100%"
-              fill="#dddddd"/>
-        <text x="50%"
-              y="50%"
+        <rect width="100%" height="100%" fill="#dddddd"/>
+        <text x="50%" y="50%"
               text-anchor="middle"
               dominant-baseline="middle"
               font-size="36"
@@ -73,14 +77,8 @@ async function loadShop() {
 
   const slug = getSlug();
 
-  // =====================================
-  // NO SLUG = HOME / LOGIN PAGE
-  // =====================================
-
   if (!slug) {
-
     showHome();
-
     return;
   }
 
@@ -103,24 +101,15 @@ async function loadShop() {
       "?action=shop&slug=" +
       encodeURIComponent(slug);
 
-    const response =
-      await fetch(url);
-
-    const result =
-      await response.json();
+    const response = await fetch(url);
+    const result = await response.json();
 
     if (!result.ok) {
-
-      showError(
-        result.error ||
-        "Business not found"
-      );
-
+      showError(result.error || "Business not found");
       return;
     }
 
     data = result;
-
     render();
 
   } catch (error) {
@@ -151,9 +140,7 @@ function showHome() {
 
       <div>
 
-        <h1>
-          Digital Shop
-        </h1>
+        <h1>Digital Shop</h1>
 
         <p style="color:#777">
           Please login to manage your shop.
@@ -177,7 +164,6 @@ function showHome() {
       </div>
 
     </div>
-
   `;
 }
 
@@ -242,9 +228,7 @@ function render() {
 
         <div class="brand">
 
-          <h1>
-            ${esc(user.Business_Name)}
-          </h1>
+          <h1>${esc(user.Business_Name)}</h1>
 
           ${
             user.Address
@@ -255,7 +239,6 @@ function render() {
         </div>
 
       </header>
-
 
       <div class="actions">
 
@@ -297,7 +280,6 @@ function render() {
 
       </div>
 
-
       <nav class="nav">
 
         <button onclick="filterCat('')">
@@ -305,20 +287,14 @@ function render() {
         </button>
 
         ${categories.map(category => `
-          <button
-            onclick="filterCat('${esc(category)}')"
-          >
+          <button onclick="filterCat('${esc(category)}')">
             ${esc(category)}
           </button>
         `).join("")}
 
       </nav>
 
-
-      <main
-        id="products"
-        class="grid"
-      >
+      <main id="products" class="grid">
 
         ${
           data.products.length
@@ -412,21 +388,60 @@ function filterCat(category) {
 }
 
 
-// =====================================
-// IMAGE VIEWER + ZOOM
-// PC WHEEL + MOBILE PINCH
-// =====================================
+// ======================================================
+// IMAGE VIEWER
+// PC WHEEL + MOBILE PINCH + MOBILE PAN
+// ======================================================
 
 let scale = 1;
+
+const MIN_SCALE = 1;
+const MAX_SCALE = 5;
 
 let startDistance = 0;
 let startScale = 1;
 
+let translateX = 0;
+let translateY = 0;
+
+let lastTouchX = 0;
+let lastTouchY = 0;
+
+let isDragging = false;
+let lastTapTime = 0;
+
+
+// ------------------------------------------------------
+// APPLY TRANSFORM
+// ------------------------------------------------------
+
+function applyImageTransform() {
+
+  const image =
+    document.getElementById("viewerImg");
+
+  if (!image) return;
+
+  image.style.transform =
+    `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+}
+
+
+// ------------------------------------------------------
+// OPEN VIEWER
+// ------------------------------------------------------
+
 function openViewer(src) {
 
   scale = 1;
+
   startDistance = 0;
   startScale = 1;
+
+  translateX = 0;
+  translateY = 0;
+
+  isDragging = false;
 
   const viewer =
     document.getElementById("viewer");
@@ -436,19 +451,20 @@ function openViewer(src) {
 
   image.src = src;
 
-  image.style.transform =
-    "scale(1)";
-
   image.style.transformOrigin =
     "center center";
 
+  applyImageTransform();
+
   viewer.hidden = false;
+
+  document.body.classList.add("viewer-open");
 }
 
 
-// -------------------------------------
-// CLOSE
-// -------------------------------------
+// ------------------------------------------------------
+// CLOSE VIEWER
+// ------------------------------------------------------
 
 function closeViewer() {
 
@@ -461,15 +477,23 @@ function closeViewer() {
     document.getElementById("viewerImg");
 
   image.style.transform =
-    "scale(1)";
+    "translate3d(0,0,0) scale(1)";
 
   scale = 1;
+
+  translateX = 0;
+  translateY = 0;
+
+  startDistance = 0;
+
+  document.body.classList.remove("viewer-open");
 }
 
 
-// -------------------------------------
+// ------------------------------------------------------
 // PC MOUSE WHEEL ZOOM
-// -------------------------------------
+// NO CHANGE IN BASIC BEHAVIOUR
+// ------------------------------------------------------
 
 document
   .getElementById("viewer")
@@ -491,17 +515,14 @@ document
 
       scale =
         Math.max(
-          1,
+          MIN_SCALE,
           Math.min(
-            5,
+            MAX_SCALE,
             scale
           )
         );
 
-      document
-        .getElementById("viewerImg")
-        .style.transform =
-          `scale(${scale})`;
+      applyImageTransform();
 
     },
     {
@@ -510,14 +531,11 @@ document
   );
 
 
-// -------------------------------------
-// MOBILE PINCH ZOOM
-// -------------------------------------
+// ------------------------------------------------------
+// TOUCH DISTANCE
+// ------------------------------------------------------
 
-function getTouchDistance(
-  touch1,
-  touch2
-) {
+function getTouchDistance(touch1, touch2) {
 
   const dx =
     touch1.clientX -
@@ -531,9 +549,28 @@ function getTouchDistance(
     dx * dx +
     dy * dy
   );
-
 }
 
+
+// ------------------------------------------------------
+// TOUCH MIDPOINT
+// ------------------------------------------------------
+
+function getTouchCenter(touch1, touch2) {
+
+  return {
+    x:
+      (touch1.clientX + touch2.clientX) / 2,
+
+    y:
+      (touch1.clientY + touch2.clientY) / 2
+  };
+}
+
+
+// ------------------------------------------------------
+// MOBILE TOUCH START
+// ------------------------------------------------------
 
 document
   .getElementById("viewer")
@@ -541,9 +578,8 @@ document
     "touchstart",
     event => {
 
-      if (
-        event.touches.length === 2
-      ) {
+      // TWO FINGER = PINCH
+      if (event.touches.length === 2) {
 
         event.preventDefault();
 
@@ -553,8 +589,59 @@ document
             event.touches[1]
           );
 
-        startScale =
-          scale;
+        startScale = scale;
+
+        isDragging = false;
+
+        return;
+      }
+
+
+      // ONE FINGER
+      if (event.touches.length === 1) {
+
+        const now =
+          Date.now();
+
+        // DOUBLE TAP
+        if (
+          now - lastTapTime < 300
+        ) {
+
+          event.preventDefault();
+
+          if (scale <= 1) {
+
+            scale = 2.5;
+
+          } else {
+
+            scale = 1;
+
+            translateX = 0;
+            translateY = 0;
+
+          }
+
+          applyImageTransform();
+
+        }
+
+        lastTapTime = now;
+
+
+        // PAN ONLY WHEN ZOOMED
+        if (scale > 1) {
+
+          lastTouchX =
+            event.touches[0].clientX;
+
+          lastTouchY =
+            event.touches[0].clientY;
+
+          isDragging = true;
+
+        }
 
       }
 
@@ -565,11 +652,19 @@ document
   );
 
 
+// ------------------------------------------------------
+// MOBILE TOUCH MOVE
+// ------------------------------------------------------
+
 document
   .getElementById("viewer")
   .addEventListener(
     "touchmove",
     event => {
+
+      // ==========================================
+      // TWO FINGER PINCH
+      // ==========================================
 
       if (
         event.touches.length === 2 &&
@@ -594,19 +689,50 @@ document
 
         scale =
           Math.max(
-            1,
+            MIN_SCALE,
             Math.min(
-              5,
+              MAX_SCALE,
               scale
             )
           );
 
-        document
-          .getElementById(
-            "viewerImg"
-          )
-          .style.transform =
-            `scale(${scale})`;
+        applyImageTransform();
+
+        return;
+      }
+
+
+      // ==========================================
+      // ONE FINGER PAN
+      // ==========================================
+
+      if (
+        event.touches.length === 1 &&
+        isDragging &&
+        scale > 1
+      ) {
+
+        event.preventDefault();
+
+        const currentX =
+          event.touches[0].clientX;
+
+        const currentY =
+          event.touches[0].clientY;
+
+        const dx =
+          currentX - lastTouchX;
+
+        const dy =
+          currentY - lastTouchY;
+
+        translateX += dx;
+        translateY += dy;
+
+        lastTouchX = currentX;
+        lastTouchY = currentY;
+
+        applyImageTransform();
 
       }
 
@@ -617,47 +743,50 @@ document
   );
 
 
+// ------------------------------------------------------
+// MOBILE TOUCH END
+// ------------------------------------------------------
+
 document
   .getElementById("viewer")
   .addEventListener(
     "touchend",
     event => {
 
-      if (
-        event.touches.length < 2
-      ) {
-
+      if (event.touches.length < 2) {
         startDistance = 0;
-
       }
 
+      if (event.touches.length === 0) {
+        isDragging = false;
+      }
+
+    },
+    {
+      passive:false
     }
   );
 
 
-// -------------------------------------
+// ------------------------------------------------------
 // ESC KEY
-// -------------------------------------
+// ------------------------------------------------------
 
 document.addEventListener(
   "keydown",
   event => {
 
-    if (
-      event.key === "Escape"
-    ) {
-
+    if (event.key === "Escape") {
       closeViewer();
-
     }
 
   }
 );
 
 
-// =====================================
+// ======================================================
 // PWA
-// =====================================
+// ======================================================
 
 if ("serviceWorker" in navigator) {
 
@@ -672,8 +801,8 @@ if ("serviceWorker" in navigator) {
 }
 
 
-// =====================================
+// ======================================================
 // START
-// =====================================
+// ======================================================
 
 loadShop();
